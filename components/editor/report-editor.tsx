@@ -23,17 +23,21 @@ import {
   AttachmentChips,
   setChipAttachments,
 } from "./extensions/attachment-chips";
-import { AttachTargetHighlight, attachTargetKey } from "./extensions/attach-target";
+import {
+  AttachTargetHighlight,
+  selectionTarget,
+} from "./extensions/attach-target";
 import { TextDirection } from "./extensions/text-direction";
 import { useLocale } from "@/lib/i18n/client";
 import type { AttachmentDto, ReportDto } from "@/lib/reports/service";
 
 const AUTOSAVE_DELAY_MS = 900;
 
+/** The block the floating "Add Attachment" action is currently offering. */
 interface AttachIntent {
   blockId: string;
-  x: number;
-  y: number;
+  /** Document position the action is anchored to, so it survives scrolling. */
+  anchor: number;
 }
 
 export function ReportEditor({
@@ -54,6 +58,8 @@ export function ReportEditor({
   const [saveState, setSaveState] = useState<SaveState>("saved");
 
   const [intent, setIntent] = useState<AttachIntent | null>(null);
+  /** Bumped on scroll and resize to re-measure the floating action's position. */
+  const [viewportTick, setViewportTick] = useState(0);
   const [dialogTarget, setDialogTarget] = useState<
     { kind: "block"; blockId: string } | { kind: "replace"; attachmentId: string } | null
   >(null);
@@ -110,56 +116,77 @@ export function ReportEditor({
   );
 
   /**
-   * The attachment interaction starts here: double-click a piece of existing
-   * text and we offer to attach evidence to that exact block.
+   * The attachment interaction is driven by the **text selection**, not by a
+   * click.
    *
-   * This listens for the browser's own `dblclick` on the editor element rather
-   * than using ProseMirror's `handleDoubleClick`. ProseMirror resolves a double
-   * click during the second *mousedown* and is still mid-gesture at that point,
-   * so dispatching a transaction and setting React state from there fights with
-   * its own selection handling. Reacting to the native event afterwards is both
-   * simpler and reliable.
+   * A double-click is only one of the ways a user selects a word, and on a phone
+   * it is not one of them at all: Chrome on Android selects by long press and does
+   * not reliably deliver `dblclick`. Reacting to the selection covers every
+   * gesture on every device — double click, drag, long press — and it also means
+   * the action disappears on its own the moment the selection goes away.
    */
   useEffect(() => {
     if (!editor) return;
-    const view = editor.view;
-    const dom = view.dom as HTMLElement;
 
-    const onDoubleClick = (event: MouseEvent) => {
-      const found = view.posAtCoords({
-        left: event.clientX,
-        top: event.clientY,
-      });
-      if (!found) return;
-
-      const $pos = view.state.doc.resolve(
-        Math.min(found.pos, view.state.doc.content.size),
-      );
-      let depth = $pos.depth;
-      while (depth > 0 && !$pos.node(depth).isTextblock) depth -= 1;
-      const node = depth > 0 ? $pos.node(depth) : null;
-      const blockId = node?.attrs.blockId as string | undefined;
-
-      // Evidence attaches to existing content, never to an empty line.
-      if (!node || !blockId || node.content.size === 0) {
+    const sync = () => {
+      const target = selectionTarget(editor.state);
+      if (!target) {
         setIntent(null);
-        view.dispatch(view.state.tr.setMeta(attachTargetKey, null));
         return;
       }
-
-      view.dispatch(
-        view.state.tr.setMeta(attachTargetKey, {
-          blockId,
-          pos: $pos.before(depth),
-          nodeSize: node.nodeSize,
-        }),
+      setIntent((current) =>
+        current?.blockId === target.blockId && current.anchor === target.anchor
+          ? current
+          : { blockId: target.blockId, anchor: target.anchor },
       );
-      setIntent({ blockId, x: event.clientX, y: event.clientY });
     };
 
-    dom.addEventListener("dblclick", onDoubleClick);
-    return () => dom.removeEventListener("dblclick", onDoubleClick);
+    sync();
+    editor.on("selectionUpdate", sync);
+    editor.on("update", sync);
+    editor.on("blur", sync);
+    return () => {
+      editor.off("selectionUpdate", sync);
+      editor.off("update", sync);
+      editor.off("blur", sync);
+    };
   }, [editor]);
+
+  /**
+   * The floating action is positioned from the *document* position it belongs to,
+   * re-measured whenever the page scrolls or resizes, so it stays glued to its
+   * text instead of to wherever the pointer happened to be.
+   */
+  useEffect(() => {
+    if (!intent) return;
+    const remeasure = () => setViewportTick((tick) => tick + 1);
+    window.addEventListener("scroll", remeasure, true);
+    window.addEventListener("resize", remeasure);
+    // On phones the on-screen keyboard resizes the visual viewport without
+    // firing a window resize, which would leave the action stranded.
+    window.visualViewport?.addEventListener("resize", remeasure);
+    window.visualViewport?.addEventListener("scroll", remeasure);
+    return () => {
+      window.removeEventListener("scroll", remeasure, true);
+      window.removeEventListener("resize", remeasure);
+      window.visualViewport?.removeEventListener("resize", remeasure);
+      window.visualViewport?.removeEventListener("scroll", remeasure);
+    };
+  }, [intent]);
+
+  const intentAt = useMemo(() => {
+    if (!editor || !intent) return null;
+    try {
+      const size = editor.state.doc.content.size;
+      const box = editor.view.coordsAtPos(Math.min(intent.anchor, size));
+      return { x: (box.left + box.right) / 2, y: box.bottom };
+    } catch {
+      return null;
+    }
+    // viewportTick is the scroll/resize signal; the measurement itself reads the
+    // live DOM, which is exactly what has to be re-done when the page moves.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editor, intent, viewportTick]);
 
   const knownBlockIds = useKnownBlockIds(editor);
 
@@ -322,40 +349,13 @@ export function ReportEditor({
     };
   }, [removeAttachment]);
 
-  const clearIntent = useCallback(() => {
-    setIntent(null);
-    if (editor) {
-      editor.view.dispatch(editor.view.state.tr.setMeta(attachTargetKey, null));
-    }
-  }, [editor]);
-
-  // Dismiss the floating action on any unrelated interaction.
-  useEffect(() => {
-    if (!intent) return;
-
-    const dismiss = (event: Event) => {
-      const element = event.target as HTMLElement | null;
-      if (element?.closest("[data-attach-action]")) return;
-      clearIntent();
-    };
-    const onScroll = () => clearIntent();
-
-    // Registered on the next tick: the double-click that opened this action is
-    // still being processed, and a triple-click sends a third mousedown right
-    // behind it. Listening immediately would dismiss the button instantly.
-    const timer = setTimeout(() => {
-      document.addEventListener("mousedown", dismiss);
-      document.addEventListener("keydown", dismiss);
-      window.addEventListener("scroll", onScroll, true);
-    }, 0);
-
-    return () => {
-      clearTimeout(timer);
-      document.removeEventListener("mousedown", dismiss);
-      document.removeEventListener("keydown", dismiss);
-      window.removeEventListener("scroll", onScroll, true);
-    };
-  }, [intent, clearIntent]);
+  /**
+   * Nothing needs to listen for "dismiss" events any more: the action exists
+   * exactly as long as the selection does, and the selection effect above clears
+   * it. That also removes the old race where the very gesture that opened the
+   * action could immediately close it again.
+   */
+  const clearIntent = useCallback(() => setIntent(null), []);
 
   const previewAttachment = attachments.find((item) => item.id === previewId);
 
@@ -448,22 +448,30 @@ export function ReportEditor({
         </div>
       </div>
 
-      {intent && (
+      {intent && intentAt && !dialogTarget && !previewId && (
         <button
           type="button"
           data-attach-action
-          onClick={() => {
+          /*
+           * Opened on pointer-down, not click: on a phone the tap would otherwise
+           * collapse the selection first, and the action would vanish before the
+           * click ever arrived. Preventing the default also keeps the selection
+           * visible while the dialog opens.
+           */
+          onPointerDown={(event) => {
+            event.preventDefault();
             setDialogTarget({ kind: "block", blockId: intent.blockId });
-            setIntent(null);
           }}
+          onClick={(event) => event.preventDefault()}
           style={{
             position: "fixed",
-            left: Math.min(Math.max(intent.x - 70, 12), window.innerWidth - 170),
-            top: intent.y + 14,
+            left: `clamp(12px, ${intentAt.x}px - 5.5rem, 100vw - 12rem)`,
+            top: intentAt.y + 12,
+            touchAction: "manipulation",
           }}
-          className="animate-fade-in font-ui z-40 inline-flex h-8 items-center gap-1.5 rounded border border-line bg-paper px-2.5 text-[0.8125rem] font-medium text-evidence shadow-[0_4px_14px_rgba(26,28,28,0.14)] hover:bg-evidence/5"
+          className="animate-fade-in font-ui z-40 inline-flex h-10 items-center gap-1.5 rounded-full border border-line bg-paper px-4 text-[0.8125rem] font-medium text-evidence shadow-[0_4px_14px_rgba(26,28,28,0.18)] hover:bg-evidence/5 sm:h-8 sm:rounded sm:px-2.5"
         >
-          <Paperclip className="size-3.5" aria-hidden />
+          <Paperclip className="size-3.5 shrink-0" aria-hidden />
           {t.editor.addAttachment}
         </button>
       )}

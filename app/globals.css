@@ -286,6 +286,13 @@ button:not(:disabled),
   opacity: 1;
 }
 
+/* Touch devices never hover, so a hover-gated control would be unreachable. */
+@media (hover: none) {
+  .chip-remove {
+    opacity: 1;
+  }
+}
+
 .chip-remove:hover {
   color: var(--color-danger);
 }

@@ -62,7 +62,7 @@ const en = {
     attachments: "Attachments",
     addAttachment: "Add Attachment",
     attachHint:
-      "Double-click any text in the report to attach supporting evidence to it.",
+      "Select any text in the report — double-click on a computer, long-press on a phone — to attach supporting evidence to it.",
     documentDirection: "Document direction",
   },
   toolbar: {
@@ -188,7 +188,7 @@ const ar: Dictionary = {
     attachments: "المرفقات",
     addAttachment: "إضافة مرفق",
     attachHint:
-      "انقر نقراً مزدوجاً على أي نص في التقرير لإرفاق مستند مؤيد له.",
+      "حدِّد أي نص في التقرير — بنقرة مزدوجة على الحاسب، أو بالضغط المطوَّل على الهاتف — لإرفاق مستند مؤيد له.",
     documentDirection: "اتجاه المستند",
   },
   toolbar: {

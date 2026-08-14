@@ -113,7 +113,7 @@ export function ReportLibrary({
                     onClick={() => void remove(report.id)}
                     title={t.library.delete}
                     aria-label={`${t.library.delete}: ${report.title || t.library.untitled}`}
-                    className="grid size-7 place-items-center rounded text-ink-faint opacity-0 transition-opacity group-hover:opacity-100 hover:bg-danger/10 hover:text-danger focus-visible:opacity-100"
+                    className="grid size-7 place-items-center rounded text-ink-faint opacity-0 transition-opacity group-hover:opacity-100 hover:bg-danger/10 hover:text-danger focus-visible:opacity-100 [@media(hover:none)]:opacity-100"
                   >
                     <Trash2 className="size-3.5" aria-hidden />
                   </button>

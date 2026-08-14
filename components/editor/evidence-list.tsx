@@ -99,7 +99,8 @@ export function EvidenceRail({
                       {t.attach.unlinked}
                     </span>
                   )}
-                  <div className="ms-auto flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
+                  {/* Touch devices never hover, so the actions stay visible there. */}
+                  <div className="ms-auto flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100 [@media(hover:none)]:opacity-100">
                     <RailAction
                       label={t.attach.replace}
                       onClick={() => onReplace(attachment.id)}
