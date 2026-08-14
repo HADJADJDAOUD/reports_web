@@ -1,0 +1,314 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Scribe &amp; Source | Where narrative meets proof.</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline-variant": "#c4c7c7",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-fixed-variant": "#484645",
+                        "error-container": "#ffdad6",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-on-surface": "#f0f1f1",
+                        "surface-dim": "#dadada",
+                        "tertiary-fixed": "#e6e2df",
+                        "on-primary-container": "#858383",
+                        "on-surface-variant": "#444748",
+                        "on-primary-fixed-variant": "#474746",
+                        "primary": "#000000",
+                        "surface": "#f9f9f9",
+                        "inverse-surface": "#2f3131",
+                        "inverse-primary": "#c8c6c5",
+                        "secondary-container": "#0266ff",
+                        "on-error": "#ffffff",
+                        "primary-container": "#1c1b1b",
+                        "primary-fixed-dim": "#c8c6c5",
+                        "tertiary-container": "#1c1b1a",
+                        "on-secondary-fixed": "#001849",
+                        "surface-container-low": "#f3f3f3",
+                        "on-background": "#1a1c1c",
+                        "background": "#f9f9f9",
+                        "secondary-fixed": "#dae1ff",
+                        "surface-container": "#eeeeee",
+                        "secondary": "#0050cc",
+                        "on-error-container": "#93000a",
+                        "on-secondary-fixed-variant": "#003fa4",
+                        "error": "#ba1a1a",
+                        "tertiary-fixed-dim": "#cac6c4",
+                        "tertiary": "#000000",
+                        "on-secondary": "#ffffff",
+                        "secondary-fixed-dim": "#b3c5ff",
+                        "on-secondary-container": "#f9f7ff",
+                        "surface-variant": "#e2e2e2",
+                        "on-primary": "#ffffff",
+                        "on-primary-fixed": "#1c1b1b",
+                        "on-surface": "#1a1c1c",
+                        "surface-tint": "#5f5e5e",
+                        "on-tertiary-fixed": "#1c1b1a",
+                        "primary-fixed": "#e5e2e1",
+                        "surface-container-highest": "#e2e2e2",
+                        "on-tertiary-container": "#868382",
+                        "outline": "#747878",
+                        "surface-bright": "#f9f9f9",
+                        "surface-container-high": "#e8e8e8"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "xs": "4px",
+                        "md": "16px",
+                        "lg": "24px",
+                        "unit": "4px",
+                        "xxl": "80px",
+                        "sidebar-width": "280px",
+                        "container-max": "800px",
+                        "xl": "40px",
+                        "sm": "8px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Geist"],
+                        "display-lg-mobile": ["Geist"],
+                        "ui-label": ["Geist"],
+                        "ui-caption": ["Geist"],
+                        "h1": ["Geist"],
+                        "editor-body": ["\"Source Serif 4\""],
+                        "editor-body-mobile": ["\"Source Serif 4\""],
+                        "h2": ["Geist"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["40px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "display-lg-mobile": ["32px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "ui-label": ["14px", { "lineHeight": "1.2", "fontWeight": "500" }],
+                        "ui-caption": ["12px", { "lineHeight": "1.2", "letterSpacing": "0.01em", "fontWeight": "400" }],
+                        "h1": ["24px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                        "editor-body": ["18px", { "lineHeight": "1.7", "fontWeight": "400" }],
+                        "editor-body-mobile": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "h2": ["20px", { "lineHeight": "1.4", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { background-color: #fcfcfc; }
+    </style>
+</head>
+<body class="font-sans antialiased text-on-surface bg-surface-container-lowest">
+<!-- TopAppBar -->
+<header class="bg-surface dark:bg-surface-container border-b border-outline-variant dark:border-on-surface-variant flex justify-between items-center w-full px-lg py-sm max-w-container-max mx-auto docked full-width top flat no shadows">
+<div class="flex items-center gap-md">
+<span class="font-h2 text-h2 font-bold text-primary dark:text-on-primary-fixed">Lexis</span>
+<nav class="hidden md:flex gap-md ml-lg">
+<a class="font-ui-label text-ui-label text-on-surface-variant dark:text-on-tertiary-container hover:text-primary dark:hover:text-on-primary-fixed transition-colors" href="#">Documents</a>
+<a class="font-ui-label text-ui-label text-on-surface-variant dark:text-on-tertiary-container hover:text-primary dark:hover:text-on-primary-fixed transition-colors" href="#">Library</a>
+</nav>
+</div>
+<div class="flex items-center gap-md">
+<button class="font-ui-label text-ui-label text-primary dark:text-on-primary-fixed hover:text-primary dark:hover:text-on-primary-fixed transition-colors">Share</button>
+<button class="font-ui-label text-ui-label text-on-surface-variant dark:text-on-tertiary-container hover:text-primary dark:hover:text-on-primary-fixed transition-colors border border-outline-variant px-sm py-[2px] rounded-DEFAULT">Export</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+</header>
+<main class="w-full">
+<!-- Hero Section -->
+<section class="max-w-container-max mx-auto px-lg py-xxl text-center mt-xl" style="background-image: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url(&quot;https://lh3.googleusercontent.com/aida/AP1WRLs7xzQRtttpNPpPl5p5A_sFxKkFcVtMIT1WRg-CvoB0Td52gvoTulDl_aQrtbQOZgO1rWLMkInTZPmOKzjPEBFCP83ziULZZyc15RuwcOKNHV_aqlrezizEuVGTivG8OaAJRrVLPbxGdyxa_C0cBCxTtqjl2KMlck3hNcFUIegv0xpMvfEUR64IPGpm_pSHcrr0yLwz2_df05-LRRHIz-AhDJuF8WEgOhQE1NGXKd_VXKhcPrR8_frPlg&quot;); background-size: cover; background-position: center center;">
+<h1 class="font-display-lg text-display-lg text-primary mb-md mx-auto max-w-2xl">Where narrative meets proof.</h1>
+<p class="font-editor-body text-editor-body text-on-surface-variant mb-lg mx-auto max-w-xl">The professional platform for creating documents backed by undeniable evidence. Write your report, connect your sources, and share with total confidence.</p>
+<div class="flex justify-center gap-md">
+<button class="bg-primary text-on-primary font-ui-label text-ui-label px-lg py-sm rounded-DEFAULT hover:opacity-80 transition-opacity duration-200">Start Writing</button>
+<button class="border border-primary text-primary font-ui-label text-ui-label px-lg py-sm rounded-DEFAULT hover:bg-surface-container-low transition-colors duration-200">View Sample Report</button>
+</div>
+<div class="mt-xl relative rounded-xl border border-outline-variant overflow-hidden shadow-sm bg-surface-alt">
+<img class="w-full h-auto block object-cover" data-alt="A high-fidelity minimalist UI mockup showing a document editor interface. On the left, a clean text editor with 'Lexis' brand aesthetics, using crisp whites and elegant typography. On the right, a vertical 'Evidence Rail' displaying floating cards of photos, PDFs, and invoices connected by subtle visual lines to specific text selections. The overall mood is deeply focused, professional, and utilitarian." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB0lGxxrliNsuD2edDu14jS_6-1vjDxRl1CjpDYRlUTGC6Lc57kbNBugkTkuaeGJEpnViCVANeamPL6l9U-1QYGUfC7KMwbOOHi59X5-MAY49KT95LwejMIahsS7GxsBj7AAxdCG199JL6DklA-cr60DToR1bW-3b1rlCRrt_uxfdWRbf4rzk6qHLtixpkJYAldbojRUeFr6cFBePFTh_aeTiMlcdM--QxlWJ5P_WpHA6yWzVZG188">
+</div>
+</section>
+<!-- 1. WHAT THE PRODUCT DOES -->
+<section class="max-w-container-max mx-auto px-lg py-xxl border-t border-outline-variant">
+<h2 class="font-h1 text-h1 text-primary text-center mb-xl">The complete documentation workflow</h2>
+<div class="flex flex-col md:flex-row justify-between items-center gap-md text-center">
+<div class="flex-1">
+<span class="material-symbols-outlined text-primary text-4xl mb-sm block">edit_document</span>
+<p class="font-ui-label text-primary">Write Report</p>
+</div>
+<span class="material-symbols-outlined text-outline-variant hidden md:block">arrow_forward</span>
+<div class="flex-1">
+<span class="material-symbols-outlined text-primary text-4xl mb-sm block">link</span>
+<p class="font-ui-label text-primary">Connect Evidence</p>
+</div>
+<span class="material-symbols-outlined text-outline-variant hidden md:block">arrow_forward</span>
+<div class="flex-1">
+<span class="material-symbols-outlined text-primary text-4xl mb-sm block">folder</span>
+<p class="font-ui-label text-primary">Organize</p>
+</div>
+<span class="material-symbols-outlined text-outline-variant hidden md:block">arrow_forward</span>
+<div class="flex-1">
+<span class="material-symbols-outlined text-primary text-4xl mb-sm block">ios_share</span>
+<p class="font-ui-label text-primary">Export &amp; Share</p>
+</div>
+</div>
+</section>
+<!-- 2. HOW IT WORKS -->
+<section class="bg-surface-container-low border-y border-outline-variant py-xxl">
+<div class="max-w-container-max mx-auto px-lg">
+<h2 class="font-h1 text-h1 text-primary text-center mb-xl">How it works</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+<div class="bg-surface-container-lowest p-lg rounded-xl border border-outline-variant shadow-sm">
+<span class="material-symbols-outlined text-primary mb-sm">looks_one</span>
+<h3 class="font-h2 text-h2 text-primary mb-xs">Write</h3>
+<p class="font-editor-body-mobile text-on-surface-variant">Draft your narrative in a clean, focused editor designed for professional documents.</p>
+</div>
+<div class="bg-surface-container-lowest p-lg rounded-xl border border-outline-variant shadow-sm">
+<span class="material-symbols-outlined text-primary mb-sm">looks_two</span>
+<h3 class="font-h2 text-h2 text-primary mb-xs">Attach</h3>
+<p class="font-editor-body-mobile text-on-surface-variant">Upload supporting files directly to your library and link them to specific passages.</p>
+</div>
+<div class="bg-surface-container-lowest p-lg rounded-xl border border-outline-variant shadow-sm">
+<span class="material-symbols-outlined text-primary mb-sm">looks_3</span>
+<h3 class="font-h2 text-h2 text-primary mb-xs">Review</h3>
+<p class="font-editor-body-mobile text-on-surface-variant">Ensure every factual claim is properly cited and easily verifiable by the reader.</p>
+</div>
+<div class="bg-surface-container-lowest p-lg rounded-xl border border-outline-variant shadow-sm">
+<span class="material-symbols-outlined text-primary mb-sm">looks_4</span>
+<h3 class="font-h2 text-h2 text-primary mb-xs">Export &amp; Share</h3>
+<p class="font-editor-body-mobile text-on-surface-variant">Generate a polished, interactive document with all evidence embedded and linked.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- 3. THE CORE DIFFERENTIATOR -->
+<section class="max-w-container-max mx-auto px-lg py-xxl">
+<div class="text-center mb-xl">
+<h2 class="font-h1 text-h1 text-primary mb-md">Every statement can have its proof.</h2>
+<p class="font-editor-body text-on-surface-variant max-w-xl mx-auto">Stop digging through separate folders. Lexis ties your evidence directly to the exact words it supports.</p>
+</div>
+<div class="border border-outline-variant rounded-xl p-lg bg-surface-container-lowest shadow-sm flex flex-col md:flex-row gap-lg items-center">
+<div class="flex-1 font-editor-body text-primary leading-relaxed border-l-2 border-outline-variant pl-md">
+        The site inspection conducted on <span class="bg-secondary-fixed/30 rounded px-[2px] border-b border-secondary">October 14th</span> revealed significant structural degradation in the primary load-bearing columns. As noted in the <span class="bg-secondary-fixed/30 rounded px-[2px] border-b border-secondary">engineer's assessment</span>, immediate remediation is required.
+    </div>
+<div class="flex flex-col gap-sm">
+<div class="flex items-center gap-sm bg-surface-container-low p-sm rounded border border-outline-variant">
+<span class="material-symbols-outlined text-on-surface-variant">image</span>
+<span class="font-ui-label text-primary">Inspection_Photo_01.jpg</span>
+</div>
+<div class="flex items-center gap-sm bg-surface-container-low p-sm rounded border border-outline-variant">
+<span class="material-symbols-outlined text-on-surface-variant">picture_as_pdf</span>
+<span class="font-ui-label text-primary">Engineering_Report.pdf</span>
+</div>
+</div>
+</div>
+</section>
+<!-- 4. SUPPORTED ATTACHMENTS -->
+<section class="bg-surface-container-lowest border-t border-outline-variant py-xxl" style="background-image: linear-gradient(rgba(249, 249, 249, 0.85), rgba(249, 249, 249, 0.85)), url(&quot;https://lh3.googleusercontent.com/aida/AP1WRLtzuL953VcHwZjcmJGiNEkCmLdp_dljmRFMjqwhPdoOl3SoE2UzDC0cuv5emmBCy8rz0S5MgK9WAOITOmR3cT6R4vKB7AwxvlYhfsR66t9xt7FyDnd-uTZMfidwsIvrfBtPN0RvXv6fbH2zcUKLoukF2a6gB2TkTzDEp7GkoxMDzshXw1NZAUj5C5zmle42wnGtseY3dNGN9eBSi1MTKnm2TC-bZJYxJKrx3BHBNrvHS85aFL0ZhO7EbQ&quot;); background-size: cover; background-position: center center;">
+<div class="max-w-container-max mx-auto px-lg text-center">
+<h2 class="font-h1 text-h1 text-primary mb-xl">Support for every type of evidence</h2>
+<div class="flex flex-wrap justify-center gap-sm">
+<span class="border border-outline-variant rounded-full px-md py-sm font-ui-label text-primary flex items-center gap-xs"><span class="material-symbols-outlined text-[18px]">image</span> Photos</span>
+<span class="border border-outline-variant rounded-full px-md py-sm font-ui-label text-primary flex items-center gap-xs"><span class="material-symbols-outlined text-[18px]">description</span> PDFs</span>
+<span class="border border-outline-variant rounded-full px-md py-sm font-ui-label text-primary flex items-center gap-xs"><span class="material-symbols-outlined text-[18px]">receipt_long</span> Invoices</span>
+<span class="border border-outline-variant rounded-full px-md py-sm font-ui-label text-primary flex items-center gap-xs"><span class="material-symbols-outlined text-[18px]">contract</span> Contracts</span>
+<span class="border border-outline-variant rounded-full px-md py-sm font-ui-label text-primary flex items-center gap-xs"><span class="material-symbols-outlined text-[18px]">receipt</span> Receipts</span>
+<span class="border border-outline-variant rounded-full px-md py-sm font-ui-label text-primary flex items-center gap-xs"><span class="material-symbols-outlined text-[18px]">lab_profile</span> Reports</span>
+</div>
+</div>
+</section>
+<!-- 5. PROFESSIONAL USE CASES -->
+<section class="max-w-container-max mx-auto px-lg py-xxl border-t border-outline-variant" style="background-image: linear-gradient(rgba(243, 243, 243, 0.92), rgba(243, 243, 243, 0.92)), url('https://lh3.googleusercontent.com/aida-public/AB6AXuCzplftMmC-N-Nhvrv2Q2K2KfNFhPxWH6rUxkdpRxlrGU5N8btf78YL45qdbQ6fz66HFuq-Z-vilL8VcXZXwTiyFiK6CHALigE81aqDUsFD2ehJKI8xM020rrOBu5-TWJnfLkRHCXmD9dntxxyHcBaNydxeTVf0lCmxpCuB7R00MJVVYGS3cL5lgBCew1UO7pcW0IaSvateoLkmcQpSXFuTlrbcwmZdpDqpO_0sSA2Vj2bCz_IvWP0'); background-size: cover; background-position: center;">
+<h2 class="font-h1 text-h1 text-primary text-center mb-xl">Built for professional rigor</h2>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-md">
+<div class="text-center p-md">
+<span class="material-symbols-outlined text-primary text-3xl mb-xs">fact_check</span>
+<h3 class="font-ui-label text-primary font-bold">Inspection Reports</h3>
+</div>
+<div class="text-center p-md">
+<span class="material-symbols-outlined text-primary text-3xl mb-xs">science</span>
+<h3 class="font-ui-label text-primary font-bold">Research Documents</h3>
+</div>
+<div class="text-center p-md">
+<span class="material-symbols-outlined text-primary text-3xl mb-xs">gavel</span>
+<h3 class="font-ui-label text-primary font-bold">Case Documentation</h3>
+</div>
+</div>
+</section>
+<!-- 6. INTERACTIVE PDF -->
+<section class="bg-surface-container-low border-y border-outline-variant py-xxl">
+<div class="max-w-container-max mx-auto px-lg text-center">
+<h2 class="font-h1 text-h1 text-primary mb-md">Deliver interactive confidence</h2>
+<p class="font-editor-body text-on-surface-variant max-w-xl mx-auto mb-xl">Export to a self-contained PDF where readers can jump directly to source files with a single click. No more appending hundreds of unreferenced pages at the end.</p>
+<div class="border border-outline-variant rounded-xl bg-surface-container-lowest p-xl shadow-sm max-w-2xl mx-auto text-left font-editor-body text-primary">
+<div class="mb-lg">
+<h4 class="font-h2 mb-sm">3. Findings</h4>
+<p class="mb-sm">The initial review of the financial disclosures <span class="text-secondary font-ui-label bg-secondary-fixed/20 px-xs rounded cursor-pointer hover:bg-secondary-fixed/40 transition-colors">[E-01]</span> indicates a discrepancy in the Q3 reporting.</p>
+</div>
+<div class="border-t border-outline-variant pt-md text-on-surface-variant font-editor-body-mobile">
+<p class="font-ui-label text-primary mb-xs">Evidence Appendix</p>
+<p class=""><span class="text-secondary font-ui-label">[E-01]</span> Q3_Financial_Disclosure_v2.pdf (Page 4)</p>
+</div>
+</div>
+</div>
+</section>
+<!-- 7. CLOUD & ORGANIZATION -->
+<section class="max-w-container-max mx-auto px-lg py-xxl flex flex-col md:flex-row items-center gap-xl">
+<div class="flex-1">
+<h2 class="font-h1 text-h1 text-primary mb-md">Organized and accessible</h2>
+<p class="font-editor-body text-on-surface-variant">Your work is securely saved in the cloud. Every document and piece of evidence is neatly organized in your Library, making it easy to return to previous projects or reuse evidence across multiple reports.</p>
+</div>
+<div class="flex-1 flex justify-center">
+<span class="material-symbols-outlined text-[120px] text-outline-variant">cloud_done</span>
+</div>
+</section>
+<!-- 8. TARGET AUDIENCE -->
+<section class="bg-surface-container-lowest border-t border-outline-variant py-xxl">
+<div class="max-w-container-max mx-auto px-lg text-center">
+<h2 class="font-ui-label text-on-surface-variant uppercase tracking-widest mb-md">Trusted By Professionals</h2>
+<div class="flex justify-center gap-lg flex-wrap font-ui-label text-primary text-lg">
+<span class="">Engineers</span>
+<span class="text-outline-variant">•</span>
+<span class="">Consultants</span>
+<span class="text-outline-variant">•</span>
+<span class="">Researchers</span>
+<span class="text-outline-variant">•</span>
+<span class="">Legal Professionals</span>
+</div>
+</div>
+</section>
+<!-- 9. FINAL CTA -->
+<section class="max-w-container-max mx-auto px-lg py-xxl text-center border-t border-outline-variant">
+<h2 class="font-display-lg-mobile text-primary mb-md">Write with confidence. Keep the proof connected.</h2>
+<button class="bg-primary text-on-primary font-ui-label text-ui-label px-xl py-md rounded-DEFAULT hover:opacity-80 transition-opacity duration-200 mt-md text-lg">Start Writing</button>
+</section>
+<!-- Footer -->
+<footer class="bg-surface-container-lowest dark:bg-surface-dim border-t border-outline-variant flex flex-col md:flex-row justify-between items-center w-full px-lg py-md max-w-container-max mx-auto full-width bottom flat no shadows mt-xxl">
+<div class="flex items-center gap-md mb-md md:mb-0">
+<span class="font-ui-label text-ui-label text-primary">Lexis</span>
+<span class="font-ui-caption text-ui-caption text-on-surface dark:text-on-surface-variant">© 2024 Lexis Research Systems</span>
+</div>
+<nav class="flex gap-lg">
+<a class="font-ui-caption text-ui-caption text-on-surface-variant hover:text-secondary dark:hover:text-secondary-fixed Transition-all duration-150" href="#">Privacy</a>
+<a class="font-ui-caption text-ui-caption text-on-surface-variant hover:text-secondary dark:hover:text-secondary-fixed Transition-all duration-150" href="#">Terms</a>
+<a class="font-ui-caption text-ui-caption text-on-surface-variant hover:text-secondary dark:hover:text-secondary-fixed Transition-all duration-150" href="#">Support</a>
+</nav>
+</footer>
+</main>
+
+
+</body></html>

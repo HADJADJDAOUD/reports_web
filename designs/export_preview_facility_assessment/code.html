@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Export Preview | Facility Assessment</title>
+<!-- Fonts: Geist and Source Serif 4 -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Source+Serif+4:opsz,wght@8..60,400;8..60,500&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config injected from design system -->
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-primary-fixed": "#1c1b1b",
+                      "secondary-fixed": "#dae1ff",
+                      "on-secondary-fixed": "#001849",
+                      "surface-tint": "#5f5e5e",
+                      "surface-container-low": "#f3f3f3",
+                      "surface-container-lowest": "#ffffff",
+                      "on-surface-variant": "#444748",
+                      "on-tertiary-container": "#868382",
+                      "on-tertiary-fixed": "#1c1b1a",
+                      "tertiary-container": "#1c1b1a",
+                      "on-primary-fixed-variant": "#474746",
+                      "tertiary-fixed": "#e6e2df",
+                      "primary-fixed": "#e5e2e1",
+                      "on-secondary-fixed-variant": "#003fa4",
+                      "tertiary-fixed-dim": "#cac6c4",
+                      "primary": "#000000",
+                      "surface": "#f9f9f9",
+                      "surface-container-highest": "#e2e2e2",
+                      "on-secondary-container": "#f9f7ff",
+                      "primary-fixed-dim": "#c8c6c5",
+                      "surface-dim": "#dadada",
+                      "inverse-primary": "#c8c6c5",
+                      "inverse-surface": "#2f3131",
+                      "on-error-container": "#93000a",
+                      "secondary-fixed-dim": "#b3c5ff",
+                      "surface-variant": "#e2e2e2",
+                      "on-primary": "#ffffff",
+                      "inverse-on-surface": "#f0f1f1",
+                      "on-secondary": "#ffffff",
+                      "surface-container-high": "#e8e8e8",
+                      "outline-variant": "#c4c7c7",
+                      "surface-container": "#eeeeee",
+                      "on-surface": "#1a1c1c",
+                      "on-primary-container": "#858383",
+                      "background": "#f9f9f9",
+                      "outline": "#747878",
+                      "on-error": "#ffffff",
+                      "on-tertiary-fixed-variant": "#484645",
+                      "surface-bright": "#f9f9f9",
+                      "primary-container": "#1c1b1b",
+                      "on-tertiary": "#ffffff",
+                      "error": "#ba1a1a",
+                      "secondary-container": "#0266ff",
+                      "tertiary": "#000000",
+                      "on-background": "#1a1c1c",
+                      "error-container": "#ffdad6",
+                      "secondary": "#0050cc"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "lg": "24px",
+                      "xl": "40px",
+                      "sm": "8px",
+                      "md": "16px",
+                      "xs": "4px",
+                      "xxl": "80px",
+                      "container-max": "800px",
+                      "sidebar-width": "280px",
+                      "unit": "4px"
+              },
+              "fontFamily": {
+                      "display-lg": ["Geist"],
+                      "editor-body-mobile": ["\"Source Serif 4\""],
+                      "h1": ["Geist"],
+                      "editor-body": ["\"Source Serif 4\""],
+                      "h2": ["Geist"],
+                      "display-lg-mobile": ["Geist"],
+                      "ui-label": ["Geist"],
+                      "ui-caption": ["Geist"]
+              },
+              "fontSize": {
+                      "display-lg": ["40px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                      "editor-body-mobile": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                      "h1": ["24px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                      "editor-body": ["18px", { "lineHeight": "1.7", "fontWeight": "400" }],
+                      "h2": ["20px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                      "display-lg-mobile": ["32px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                      "ui-label": ["14px", { "lineHeight": "1.2", "fontWeight": "500" }],
+                      "ui-caption": ["12px", { "lineHeight": "1.2", "letterSpacing": "0.01em", "fontWeight": "400" }]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        /* Base styles to ensure consistency */
+        body {
+            background-color: theme('colors.background');
+            color: theme('colors.on-background');
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        /* Custom scrollbar for the evidence rail to keep it minimal */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: theme('colors.outline-variant');
+            border-radius: theme('borderRadius.full');
+        }
+        
+        /* Connecting line illusion for pinned evidence */
+        .evidence-pin-line {
+            position: absolute;
+            left: -24px;
+            top: 50%;
+            width: 24px;
+            height: 1px;
+            background-color: theme('colors.outline-variant');
+            z-index: 0;
+            display: none; /* Hide by default, show on hover/active via JS if needed, or keep simple */
+        }
+        .evidence-card:hover .evidence-pin-line {
+            display: block;
+            background-color: theme('colors.primary');
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col font-ui-label text-ui-label">
+<!-- TopAppBar -->
+<header class="bg-surface border-b border-outline-variant w-full z-10 sticky top-0">
+<div class="flex justify-between items-center w-full px-lg py-sm max-w-container-max mx-auto">
+<!-- Brand -->
+<div class="flex items-center gap-md">
+<span class="font-h2 text-h2 font-bold text-primary">Lexis</span>
+</div>
+<!-- Navigation -->
+<nav class="hidden md:flex items-center gap-lg">
+<a class="text-primary font-bold border-b-2 border-primary pb-1" href="#">Documents</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors pb-1 border-b-2 border-transparent" href="#">Library</a>
+</nav>
+<!-- Actions -->
+<div class="flex items-center gap-sm">
+<button class="px-md py-sm rounded border border-outline-variant text-on-surface hover:text-primary transition-colors bg-surface-container-lowest">
+                    Share
+                </button>
+<button class="px-md py-sm rounded bg-primary text-on-primary hover:opacity-80 transition-opacity duration-200">
+                    Export
+                </button>
+<button class="p-sm rounded text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+</button>
+<img alt="User profile" class="w-8 h-8 rounded-full border border-outline-variant ml-sm object-cover" data-alt="A small, professional headshot photo of a user in a well-lit studio setting. High quality, clear, minimalist background, suitable for an enterprise software avatar." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCSiUdvBOAVY9wRVZSnOWhOqHx4MBEIXksqcSDuNyRJUeOmtg1oyR8e7LPRnhCOOP0ZH7GZ8IHp4WpcDfrEPnjXLpxN56i-HIWRdP11OlB6j44X0Y3b6N2E2tdTsKU1rQL2UXg7kqlBY9ShkfPxOGXoks7-2VFo3I9RT8l2N9rNXzuzULhMnHS8QeNDyALj_gyFje6e0eI6MeY83mXStGAUyyMjI7qoUMJndbUN6Fxmz0upar6OYzA"/>
+</div>
+</div>
+</header>
+<!-- Sub-Header / Context Bar -->
+<div class="w-full bg-surface-container-low border-b border-outline-variant">
+<div class="max-w-[1200px] mx-auto px-lg py-md flex justify-between items-center">
+<div>
+<p class="font-ui-caption text-ui-caption text-on-surface-variant mb-xs">Export Preview</p>
+<h1 class="font-h1 text-h1 text-primary">Facility Assessment - Final Report</h1>
+</div>
+<div class="flex items-center gap-md text-on-surface-variant">
+<span class="flex items-center gap-xs font-ui-caption text-ui-caption"><span class="material-symbols-outlined text-[16px]">visibility</span> Previewing as PDF (A4)</span>
+<div class="h-4 w-px bg-outline-variant"></div>
+<button class="font-ui-caption text-ui-caption text-secondary hover:underline flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]">tune</span> Page Settings
+                </button>
+</div>
+</div>
+</div>
+<!-- Main Workspace - The Desk -->
+<main class="flex-grow flex justify-center w-full bg-surface-container-low py-xl px-md overflow-hidden relative">
+<!-- Workspace Container (Document + Rail) -->
+<div class="flex flex-row gap-lg w-full max-w-[1200px] items-start relative">
+<!-- Left Pane: Document Canvas -->
+<article class="flex-grow bg-surface-container-lowest border border-outline-variant rounded shadow-sm max-w-container-max mx-auto md:mx-0 relative z-10 px-xl py-[60px] min-h-[800px]">
+<header class="mb-[40px]">
+<h2 class="font-display-lg text-display-lg text-primary mb-sm">Structural Integrity Analysis</h2>
+<p class="font-ui-label text-ui-label text-on-surface-variant">Prepared for: Board of Directors | Date: Oct 24, 2024</p>
+</header>
+<div class="font-editor-body text-editor-body text-on-surface space-y-[24px]">
+<p>
+                        Following the initial walkthrough of the primary storage facility, several critical observations were recorded regarding the foundation's load-bearing capacity. The northeast corner of Sector 7 exhibits clear signs of subsidence, consistent with prolonged water exposure detailed in the preliminary environmental survey 
+                        <span class="inline-flex items-center justify-center px-2 py-0.5 ml-1 rounded-full bg-secondary/10 text-secondary font-ui-caption text-ui-caption hover:bg-secondary/20 transition-colors cursor-pointer border border-transparent hover:border-secondary/30 select-none" title="View Source">[1]</span>.
+                    </p>
+<p>
+                        Core samples extracted from the affected support columns indicate a concrete degradation level of approximately 14%. This exceeds acceptable safety margins for industrial operations of this scale. Furthermore, visual inspections confirmed severe micro-fracturing along the primary stress lines of the lateral beams 
+                        <span class="inline-flex items-center justify-center px-2 py-0.5 ml-1 rounded-full bg-secondary/10 text-secondary font-ui-caption text-ui-caption hover:bg-secondary/20 transition-colors cursor-pointer border border-transparent hover:border-secondary/30 select-none" title="View Source">[2]</span>. 
+                        Remediation must commence immediately to prevent catastrophic failure under peak seasonal loads.
+                    </p>
+<p>
+                        Financial impact estimates for the necessary reinforcement protocols are outlined in Appendix B, cross-referenced with vendor quotes from local contractors. It is highly advised to temporarily suspend operations in Sector 7 until shoring can be installed 
+                        <span class="inline-flex items-center justify-center px-2 py-0.5 ml-1 rounded-full bg-secondary/10 text-secondary font-ui-caption text-ui-caption hover:bg-secondary/20 transition-colors cursor-pointer border border-transparent hover:border-secondary/30 select-none" title="View Source">[3]</span>.
+                    </p>
+</div>
+</article>
+<!-- Right Pane: Evidence Rail -->
+<aside class="hidden lg:flex w-sidebar-width flex-shrink-0 flex-col gap-md sticky top-[100px] h-[calc(100vh-140px)] overflow-y-auto custom-scrollbar pb-xl pr-sm">
+<div class="px-sm pb-sm border-b border-outline-variant mb-sm">
+<span class="font-ui-caption text-ui-caption text-on-surface-variant uppercase tracking-wider">Source Rail</span>
+</div>
+<!-- Evidence Card [1] -->
+<div class="evidence-card relative bg-surface-container-lowest border border-outline-variant rounded p-md hover:border-primary transition-colors group cursor-pointer">
+<div class="evidence-pin-line group-hover:bg-primary transition-colors"></div>
+<div class="flex items-start justify-between mb-sm">
+<div class="flex items-center gap-xs">
+<span class="flex items-center justify-center w-5 h-5 rounded-full bg-secondary/10 text-secondary font-ui-caption text-[10px]">1</span>
+<span class="font-ui-label text-ui-label text-primary">Env_Survey_v2.pdf</span>
+</div>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant" data-icon="description">description</span>
+</div>
+<div class="font-editor-body text-[14px] leading-snug text-on-surface mb-sm border-l-2 border-outline-variant pl-sm italic">
+                        "...water pooling identified adjacent to foundations in NE Sector 7, present for estimated 6+ months."
+                    </div>
+<div class="flex justify-between items-center mt-sm pt-sm border-t border-outline-variant border-dashed">
+<span class="font-ui-caption text-ui-caption text-on-surface-variant">Page 14, Para 3</span>
+<button class="font-ui-caption text-ui-caption text-secondary hover:underline">View File</button>
+</div>
+</div>
+<!-- Evidence Card [2] -->
+<div class="evidence-card relative bg-surface-container-lowest border border-outline-variant rounded p-md hover:border-primary transition-colors group cursor-pointer mt-[60px]"> <!-- Margins used to roughly align visually in static mockup -->
+<div class="evidence-pin-line group-hover:bg-primary transition-colors"></div>
+<div class="flex items-start justify-between mb-sm">
+<div class="flex items-center gap-xs">
+<span class="flex items-center justify-center w-5 h-5 rounded-full bg-secondary/10 text-secondary font-ui-caption text-[10px]">2</span>
+<span class="font-ui-label text-ui-label text-primary">Beam_Fracture_01.jpg</span>
+</div>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant" data-icon="image">image</span>
+</div>
+<div class="w-full h-24 mb-sm rounded bg-surface border border-outline-variant overflow-hidden">
+<img class="w-full h-full object-cover grayscale opacity-90 hover:opacity-100 transition-opacity" data-alt="A close-up, high-resolution photograph of a heavy industrial steel beam showing severe hairline micro-fractures along its stress lines. Harsh, stark lighting highlighting the structural damage. Utilitarian, documentation aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuARbVAFvUL_SgNI_eMRFQrQajgPZ8BBsMQO5QbfLHh_RiqkREGeDMuuB_6ujYN6Ecs9KmJvJuF8q0uMU8TiWvoNhcC5E93LbXUD0Zx7JKjeUZzPXlbJnukVRme4ZFR4oqZiKgxiXyLzD41T2sA5rS_iPWqVBda15QXZgIX_P33SHid9HgdXptC9Wml1Py9UH8lk_VDa4hHTzjrLGDTnMWREsAshZb9dRKIEY7tsPp3HYdP7ys6XNRw"/>
+</div>
+<div class="flex justify-between items-center mt-sm pt-sm border-t border-outline-variant border-dashed">
+<span class="font-ui-caption text-ui-caption text-on-surface-variant">Oct 12 Field Inspection</span>
+<button class="font-ui-caption text-ui-caption text-secondary hover:underline">Enlarge</button>
+</div>
+</div>
+<!-- Evidence Card [3] -->
+<div class="evidence-card relative bg-surface-container-lowest border border-outline-variant rounded p-md hover:border-primary transition-colors group cursor-pointer mt-[40px]">
+<div class="evidence-pin-line group-hover:bg-primary transition-colors"></div>
+<div class="flex items-start justify-between mb-sm">
+<div class="flex items-center gap-xs">
+<span class="flex items-center justify-center w-5 h-5 rounded-full bg-secondary/10 text-secondary font-ui-caption text-[10px]">3</span>
+<span class="font-ui-label text-ui-label text-primary">Shoring_Quote_Apex.pdf</span>
+</div>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant" data-icon="request_quote">request_quote</span>
+</div>
+<div class="font-editor-body text-[14px] leading-snug text-on-surface mb-sm border-l-2 border-outline-variant pl-sm italic">
+                        "Emergency installation of heavy-duty hydraulic shoring systems for Sector 7 estimated at 3-5 days lead time."
+                    </div>
+<div class="flex justify-between items-center mt-sm pt-sm border-t border-outline-variant border-dashed">
+<span class="font-ui-caption text-ui-caption text-on-surface-variant">Vendor: Apex Industrial</span>
+<button class="font-ui-caption text-ui-caption text-secondary hover:underline">View File</button>
+</div>
+</div>
+</aside>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-lowest border-t border-outline-variant w-full mt-auto">
+<div class="flex flex-col md:flex-row justify-between items-center w-full px-lg py-md max-w-container-max mx-auto">
+<span class="font-ui-label text-ui-label text-primary mb-sm md:mb-0">Lexis</span>
+<div class="flex gap-md font-ui-caption text-ui-caption text-on-surface-variant">
+<a class="hover:text-secondary transition-all duration-150" href="#">Privacy</a>
+<a class="hover:text-secondary transition-all duration-150" href="#">Terms</a>
+<a class="hover:text-secondary transition-all duration-150" href="#">Support</a>
+</div>
+<span class="font-ui-caption text-ui-caption text-on-surface mt-sm md:mt-0">© 2024 Lexis Research Systems</span>
+</div>
+</footer>
+</body></html>

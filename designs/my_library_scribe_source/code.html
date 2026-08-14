@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Scribe &amp; Source - Document Library</title>
+<!-- Google Fonts & Material Symbols -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-fixed": "#1c1b1b",
+                        "secondary-fixed": "#dae1ff",
+                        "on-secondary-fixed": "#001849",
+                        "surface-tint": "#5f5e5e",
+                        "surface-container-low": "#f3f3f3",
+                        "surface-container-lowest": "#ffffff",
+                        "on-surface-variant": "#444748",
+                        "on-tertiary-container": "#868382",
+                        "on-tertiary-fixed": "#1c1b1a",
+                        "tertiary-container": "#1c1b1a",
+                        "on-primary-fixed-variant": "#474746",
+                        "tertiary-fixed": "#e6e2df",
+                        "primary-fixed": "#e5e2e1",
+                        "on-secondary-fixed-variant": "#003fa4",
+                        "tertiary-fixed-dim": "#cac6c4",
+                        "primary": "#000000",
+                        "surface": "#f9f9f9",
+                        "surface-container-highest": "#e2e2e2",
+                        "on-secondary-container": "#f9f7ff",
+                        "primary-fixed-dim": "#c8c6c5",
+                        "surface-dim": "#dadada",
+                        "inverse-primary": "#c8c6c5",
+                        "inverse-surface": "#2f3131",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed-dim": "#b3c5ff",
+                        "surface-variant": "#e2e2e2",
+                        "on-primary": "#ffffff",
+                        "inverse-on-surface": "#f0f1f1",
+                        "on-secondary": "#ffffff",
+                        "surface-container-high": "#e8e8e8",
+                        "outline-variant": "#c4c7c7",
+                        "surface-container": "#eeeeee",
+                        "on-surface": "#1a1c1c",
+                        "on-primary-container": "#858383",
+                        "background": "#f9f9f9",
+                        "outline": "#747878",
+                        "on-error": "#ffffff",
+                        "on-tertiary-fixed-variant": "#484645",
+                        "surface-bright": "#f9f9f9",
+                        "primary-container": "#1c1b1b",
+                        "on-tertiary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "secondary-container": "#0266ff",
+                        "tertiary": "#000000",
+                        "on-background": "#1a1c1c",
+                        "error-container": "#ffdad6",
+                        "secondary": "#0050cc"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "lg": "24px",
+                        "xl": "40px",
+                        "sm": "8px",
+                        "md": "16px",
+                        "xs": "4px",
+                        "xxl": "80px",
+                        "container-max": "800px",
+                        "sidebar-width": "280px",
+                        "unit": "4px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Geist", "sans-serif"],
+                        "editor-body-mobile": ["\"Source Serif 4\"", "serif"],
+                        "h1": ["Geist", "sans-serif"],
+                        "editor-body": ["\"Source Serif 4\"", "serif"],
+                        "h2": ["Geist", "sans-serif"],
+                        "display-lg-mobile": ["Geist", "sans-serif"],
+                        "ui-label": ["Geist", "sans-serif"],
+                        "ui-caption": ["Geist", "sans-serif"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["40px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "editor-body-mobile": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "h1": ["24px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                        "editor-body": ["18px", { "lineHeight": "1.7", "fontWeight": "400" }],
+                        "h2": ["20px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                        "display-lg-mobile": ["32px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "ui-label": ["14px", { "lineHeight": "1.2", "fontWeight": "500" }],
+                        "ui-caption": ["12px", { "lineHeight": "1.2", "letterSpacing": "0.01em", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        /* Minimalist base styling aligned with Utilitarian Elegance */
+        body { font-family: 'Geist', sans-serif; }
+        
+        /* Font loading for Geist via CDN for preview purposes (ideal implementation would host it) */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+        /* Fallback mapping if exact custom font fails in preview environment */
+        @font-face {
+            font-family: 'Geist';
+            src: local('Inter');
+        }
+
+        /* Subtle scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #e2e2e2; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #c4c7c7; }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col font-ui-label selection:bg-secondary-fixed selection:text-on-secondary-fixed">
+<!-- TopAppBar -->
+<header class="w-full bg-surface dark:bg-surface-container border-b border-outline-variant dark:border-on-surface-variant sticky top-0 z-50">
+<div class="flex justify-between items-center w-full px-lg py-sm max-w-container-max mx-auto h-16">
+<!-- Brand -->
+<div class="flex items-center gap-md">
+<span class="font-h2 text-h2 font-bold text-primary dark:text-on-primary-fixed tracking-tight">Lexis</span>
+<!-- Navigation Structure -->
+<nav class="hidden md:flex items-center gap-md ml-lg h-full">
+<a class="h-16 flex items-center px-sm text-primary dark:text-on-primary-fixed font-bold border-b-2 border-primary hover:text-primary dark:hover:text-on-primary-fixed transition-colors font-ui-label text-ui-label" href="#">Documents</a>
+<a class="h-16 flex items-center px-sm text-on-surface-variant dark:text-on-tertiary-container hover:text-primary dark:hover:text-on-primary-fixed transition-colors font-ui-label text-ui-label" href="#">Library</a>
+</nav>
+</div>
+<!-- Actions -->
+<div class="flex items-center gap-md">
+<button class="hidden sm:inline-flex px-md py-sm font-ui-label text-ui-label text-on-surface-variant dark:text-on-tertiary-container hover:text-primary dark:hover:text-on-primary-fixed transition-colors">Share</button>
+<button class="hidden sm:inline-flex px-md py-sm font-ui-label text-ui-label text-on-surface-variant dark:text-on-tertiary-container hover:text-primary dark:hover:text-on-primary-fixed transition-colors">Export</button>
+<button aria-label="More options" class="text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center p-xs">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">more_vert</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant ml-sm flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity duration-200">
+<img alt="User profile" class="w-full h-full object-cover" data-alt="A minimalist, professional headshot avatar against a plain light background, high key lighting, crisp focus." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAukRCgfwUncZd9kQkDmD6b5syX5g3efMYQnOL2sft1p6LbBiuQrw4r9gXsKPjJypOVMldB2M48bRUmqgpUvwRXsNfvrjiZdVwJdwAAzCTCkvd37YsED2Hym8YckmLiMeqqWo7fPC-e2u6EKfBBjTDnl7AeHX7xEqRsr3-EH6KCgfhPbFDOwrrzRqWwe3hmc4O9nWRJxHloVYQoVppWoA3nzW7tbSlMII3dc6Oc_DQEWInXYfhW050"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Workspace -->
+<main class="flex-grow w-full max-w-container-max mx-auto px-md md:px-lg py-xl flex flex-col">
+<!-- Page Header -->
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-xl gap-md">
+<div>
+<h1 class="font-h1 text-h1 text-on-surface tracking-tight mb-xs">Document Library</h1>
+<p class="font-ui-caption text-ui-caption text-on-surface-variant">Manage and access your evidence-backed reports.</p>
+</div>
+<button class="bg-primary text-on-primary px-lg py-[10px] font-ui-label text-ui-label rounded hover:opacity-90 transition-opacity inline-flex items-center gap-sm">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 0;">add</span>
+                New Document
+            </button>
+</div>
+<!-- Document Grid (Bento/Card layout aligned with "Slip of Paper" aesthetic) -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md auto-rows-max">
+<!-- Document Card 1 -->
+<a class="group block bg-surface-container-lowest border border-outline-variant p-lg rounded-DEFAULT hover:border-primary transition-colors duration-200 relative" href="#">
+<div class="flex justify-between items-start mb-md">
+<h2 class="font-h2 text-h2 text-on-surface leading-tight pr-md group-hover:text-primary">Q3 Market Analysis &amp; Strategy</h2>
+<button aria-label="More" class="text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 0;">more_horiz</span>
+</button>
+</div>
+<div class="mt-auto flex items-center justify-between border-t border-surface-container pt-md">
+<span class="font-ui-caption text-ui-caption text-on-surface-variant">Last edited Oct 24, 2024</span>
+<!-- Inline Evidence Marker (Pill Style from guidelines) -->
+<div class="inline-flex items-center gap-xs bg-[#0050cc1a] hover:bg-[#0050cc33] text-secondary px-sm py-[2px] rounded-full transition-colors border border-transparent hover:border-secondary">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 0;">attach_file</span>
+<span class="font-ui-caption text-ui-caption font-medium">12 files</span>
+</div>
+</div>
+</a>
+<!-- Document Card 2 -->
+<a class="group block bg-surface-container-lowest border border-outline-variant p-lg rounded-DEFAULT hover:border-primary transition-colors duration-200 relative" href="#">
+<div class="flex justify-between items-start mb-md">
+<h2 class="font-h2 text-h2 text-on-surface leading-tight pr-md group-hover:text-primary">User Research Findings: Cohort A</h2>
+<button aria-label="More" class="text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 0;">more_horiz</span>
+</button>
+</div>
+<div class="mt-auto flex items-center justify-between border-t border-surface-container pt-md">
+<span class="font-ui-caption text-ui-caption text-on-surface-variant">Last edited Oct 20, 2024</span>
+<!-- Inline Evidence Marker -->
+<div class="inline-flex items-center gap-xs bg-[#0050cc1a] hover:bg-[#0050cc33] text-secondary px-sm py-[2px] rounded-full transition-colors border border-transparent hover:border-secondary">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 0;">attach_file</span>
+<span class="font-ui-caption text-ui-caption font-medium">4 files</span>
+</div>
+</div>
+</a>
+<!-- Document Card 3 (No evidence state) -->
+<a class="group block bg-surface-container-lowest border border-outline-variant p-lg rounded-DEFAULT hover:border-primary transition-colors duration-200 relative" href="#">
+<div class="flex justify-between items-start mb-md">
+<h2 class="font-h2 text-h2 text-on-surface leading-tight pr-md group-hover:text-primary">Initial Draft: Project Phoenix</h2>
+<button aria-label="More" class="text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 0;">more_horiz</span>
+</button>
+</div>
+<div class="mt-auto flex items-center justify-between border-t border-surface-container pt-md">
+<span class="font-ui-caption text-ui-caption text-on-surface-variant">Last edited Oct 15, 2024</span>
+<!-- Empty state marker -->
+<div class="inline-flex items-center gap-xs text-on-surface-variant px-sm py-[2px]">
+<span class="material-symbols-outlined text-[14px] opacity-50" style="font-variation-settings: 'FILL' 0;">draft</span>
+<span class="font-ui-caption text-ui-caption">No evidence</span>
+</div>
+</div>
+</a>
+<!-- Document Card 4 -->
+<a class="group block bg-surface-container-lowest border border-outline-variant p-lg rounded-DEFAULT hover:border-primary transition-colors duration-200 relative" href="#">
+<div class="flex justify-between items-start mb-md">
+<h2 class="font-h2 text-h2 text-on-surface leading-tight pr-md group-hover:text-primary">Legal Framework Compliance Doc</h2>
+<button aria-label="More" class="text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 0;">more_horiz</span>
+</button>
+</div>
+<div class="mt-auto flex items-center justify-between border-t border-surface-container pt-md">
+<span class="font-ui-caption text-ui-caption text-on-surface-variant">Last edited Sep 28, 2024</span>
+<!-- Inline Evidence Marker -->
+<div class="inline-flex items-center gap-xs bg-[#0050cc1a] hover:bg-[#0050cc33] text-secondary px-sm py-[2px] rounded-full transition-colors border border-transparent hover:border-secondary">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 0;">attach_file</span>
+<span class="font-ui-caption text-ui-caption font-medium">38 files</span>
+</div>
+</div>
+</a>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full bg-surface-container-lowest dark:bg-surface-dim border-t border-outline-variant mt-auto">
+<div class="flex flex-col md:flex-row justify-between items-center w-full px-lg py-md max-w-container-max mx-auto gap-md">
+<span class="font-ui-label text-ui-label text-primary">© 2024 Lexis Research Systems</span>
+<nav class="flex items-center gap-lg">
+<a class="font-ui-caption text-ui-caption text-on-surface-variant hover:text-secondary dark:hover:text-secondary-fixed transition-all duration-150" href="#">Privacy</a>
+<a class="font-ui-caption text-ui-caption text-on-surface-variant hover:text-secondary dark:hover:text-secondary-fixed transition-all duration-150" href="#">Terms</a>
+<a class="font-ui-caption text-ui-caption text-on-surface-variant hover:text-secondary dark:hover:text-secondary-fixed transition-all duration-150" href="#">Support</a>
+</nav>
+</div>
+</footer>
+</body></html>

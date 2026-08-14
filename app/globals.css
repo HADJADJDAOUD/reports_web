@@ -1,26 +1,313 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/*
+ * Design tokens from designs/scribe_source/DESIGN.md — "Ink and Paper":
+ * paper surfaces, ink text, a single functional blue for evidence.
+ */
+@theme {
+  --color-paper: #ffffff;
+  --color-desk: #f9f9f9;
+  --color-surface: #f3f3f3;
+  --color-surface-high: #eeeeee;
+  --color-ink: #1a1c1c;
+  --color-ink-soft: #444748;
+  --color-ink-faint: #747878;
+  --color-line: #e5e5e5;
+  --color-line-strong: #c4c7c7;
+  --color-evidence: #0050cc;
+  --color-evidence-bright: #0266ff;
+  --color-danger: #ba1a1a;
+
+  --font-ui:
+    var(--font-geist), ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+  --font-ui-ar:
+    var(--font-plex-arabic), var(--font-geist), ui-sans-serif, sans-serif;
+  --font-doc:
+    var(--font-pt-serif), var(--font-amiri), Georgia, "Times New Roman", serif;
+
+  --radius-chip: 9999px;
+
+  --spacing-doc: 800px;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+/* ---------------------------------------------------------------- base ---- */
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  height: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-desk);
+  color: var(--color-ink);
+  font-family: var(--font-ui-ar);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background-color: color-mix(in srgb, var(--color-evidence) 18%, transparent);
+}
+
+button:not(:disabled),
+[role="button"]:not(:disabled) {
+  cursor: pointer;
+}
+
+/* ------------------------------------------------------------- editor ---- */
+
+/*
+ * The editor surface intentionally mirrors the exported PDF: same serif family
+ * pair (PT Serif for Latin, Amiri for Arabic), generous leading, 800px measure.
+ */
+.doc-surface {
+  font-family: var(--font-doc);
+  font-size: 1.0625rem;
+  line-height: 1.75;
+  color: var(--color-ink);
+}
+
+.doc-surface .ProseMirror {
+  outline: none;
+  min-height: 60vh;
+}
+
+.doc-surface :is(p, ul, ol, blockquote, table, hr) {
+  margin-block: 0 1.1em;
+}
+
+.doc-surface :is(h1, h2, h3, h4) {
+  font-weight: 700;
+  line-height: 1.3;
+  margin-block: 1.4em 0.5em;
+}
+
+.doc-surface h1 {
+  font-size: 1.65em;
+}
+.doc-surface h2 {
+  font-size: 1.35em;
+}
+.doc-surface h3 {
+  font-size: 1.15em;
+}
+.doc-surface h4 {
+  font-size: 1.02em;
+}
+
+.doc-surface :is(h1, h2, h3, h4):first-child {
+  margin-top: 0;
+}
+
+.doc-surface :is(ul, ol) {
+  padding-inline-start: 1.6em;
+}
+
+.doc-surface ul {
+  list-style: disc;
+}
+.doc-surface ol {
+  list-style: decimal;
+}
+.doc-surface li {
+  margin-block: 0.25em;
+}
+.doc-surface li > p {
+  margin-block: 0;
+}
+
+.doc-surface blockquote {
+  border-inline-start: 3px solid var(--color-line-strong);
+  padding-inline-start: 1em;
+  color: var(--color-ink-soft);
+}
+
+.doc-surface a {
+  color: var(--color-evidence);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.doc-surface hr {
+  border: 0;
+  border-top: 1px solid var(--color-line);
+}
+
+.doc-surface code {
+  font-family: ui-monospace, monospace;
+  font-size: 0.9em;
+  background: var(--color-surface);
+  padding: 0.1em 0.3em;
+  border-radius: 3px;
+}
+
+/* Tables */
+.doc-surface table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  overflow: hidden;
+}
+
+.doc-surface :is(td, th) {
+  border: 1px solid var(--color-line-strong);
+  padding: 0.45em 0.6em;
+  vertical-align: top;
+  position: relative;
+}
+
+.doc-surface th {
+  background: var(--color-surface);
+  font-weight: 700;
+  text-align: inherit;
+}
+
+.doc-surface .selectedCell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--color-evidence) 10%, transparent);
+  pointer-events: none;
+}
+
+.doc-surface .column-resize-handle {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-end: -2px;
+  width: 4px;
+  background: var(--color-evidence-bright);
+  pointer-events: none;
+}
+
+/* Placeholder (Tiptap) */
+.doc-surface p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: inline-start;
+  height: 0;
+  color: var(--color-ink-faint);
+  pointer-events: none;
+}
+
+/* Highlight for the block currently receiving an attachment */
+.doc-surface .attach-target {
+  background: color-mix(in srgb, var(--color-evidence) 9%, transparent);
+  box-shadow: -0.25em 0 0 color-mix(in srgb, var(--color-evidence) 9%, transparent),
+    0.25em 0 0 color-mix(in srgb, var(--color-evidence) 9%, transparent);
+  border-radius: 2px;
+}
+
+/* ------------------------------------------------- attachment chip row ---- */
+
+/*
+ * Chips are rendered as ProseMirror widget decorations, so they are part of the
+ * rendered document but never part of the editable text. See
+ * components/editor/extensions/attachment-chips.ts
+ */
+/*
+ * Deliberately small: a chip is a *reference* sitting inside a sentence, not a
+ * card. It must read as an annotation to the text, never compete with it.
+ */
+.chip-row {
+  display: inline;
+  font-family: var(--font-ui-ar);
+  font-size: 0.6875rem;
+  line-height: 1;
+  user-select: none;
+  white-space: normal;
+}
+
+/* Keeps the chip from sitting flush against the last word. */
+.chip-row > .chip {
+  margin-inline-start: 0.35em;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: baseline;
+  gap: 0.2rem;
+  max-width: min(14rem, 100%);
+  padding: 0.1rem 0.3rem;
+  border-radius: 9999px;
+  background: var(--color-surface-high);
+  color: var(--color-ink-soft);
+  border: 1px solid transparent;
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease;
+}
+
+.chip:hover {
+  background: color-mix(in srgb, var(--color-evidence) 10%, var(--color-surface-high));
+  border-color: color-mix(in srgb, var(--color-evidence) 25%, transparent);
+  color: var(--color-evidence);
+}
+
+.chip-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  min-width: 0;
+  background: none;
+  border: 0;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+}
+
+.chip-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chip-icon {
+  flex: none;
+  width: 0.7rem;
+  height: 0.7rem;
+}
+
+.chip-remove {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 0.8rem;
+  height: 0.8rem;
+  border: 0;
+  border-radius: 9999px;
+  background: none;
+  color: var(--color-ink-faint);
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+.chip:hover .chip-remove,
+.chip:focus-within .chip-remove {
+  opacity: 1;
+}
+
+.chip-remove:hover {
+  color: var(--color-danger);
+}
+
+/* ----------------------------------------------------------- utilities ---- */
+
+.focus-ring:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 2px;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 120ms ease-out;
 }

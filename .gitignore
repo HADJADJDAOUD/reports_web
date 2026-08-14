@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# verification output
+/verify-output.pdf
+
+# env files: the example is the documentation, so keep it tracked
+!.env.example

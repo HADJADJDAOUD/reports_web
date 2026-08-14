@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Lexis - Document Editor</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-primary-fixed": "#1c1b1b",
+                      "secondary-fixed": "#dae1ff",
+                      "on-secondary-fixed": "#001849",
+                      "surface-tint": "#5f5e5e",
+                      "surface-container-low": "#f3f3f3",
+                      "surface-container-lowest": "#ffffff",
+                      "on-surface-variant": "#444748",
+                      "on-tertiary-container": "#868382",
+                      "on-tertiary-fixed": "#1c1b1a",
+                      "tertiary-container": "#1c1b1a",
+                      "on-primary-fixed-variant": "#474746",
+                      "tertiary-fixed": "#e6e2df",
+                      "primary-fixed": "#e5e2e1",
+                      "on-secondary-fixed-variant": "#003fa4",
+                      "tertiary-fixed-dim": "#cac6c4",
+                      "primary": "#000000",
+                      "surface": "#f9f9f9",
+                      "surface-container-highest": "#e2e2e2",
+                      "on-secondary-container": "#f9f7ff",
+                      "primary-fixed-dim": "#c8c6c5",
+                      "surface-dim": "#dadada",
+                      "inverse-primary": "#c8c6c5",
+                      "inverse-surface": "#2f3131",
+                      "on-error-container": "#93000a",
+                      "secondary-fixed-dim": "#b3c5ff",
+                      "surface-variant": "#e2e2e2",
+                      "on-primary": "#ffffff",
+                      "inverse-on-surface": "#f0f1f1",
+                      "on-secondary": "#ffffff",
+                      "surface-container-high": "#e8e8e8",
+                      "outline-variant": "#c4c7c7",
+                      "surface-container": "#eeeeee",
+                      "on-surface": "#1a1c1c",
+                      "on-primary-container": "#858383",
+                      "background": "#f9f9f9",
+                      "outline": "#747878",
+                      "on-error": "#ffffff",
+                      "on-tertiary-fixed-variant": "#484645",
+                      "surface-bright": "#f9f9f9",
+                      "primary-container": "#1c1b1b",
+                      "on-tertiary": "#ffffff",
+                      "error": "#ba1a1a",
+                      "secondary-container": "#0266ff",
+                      "tertiary": "#000000",
+                      "on-background": "#1a1c1c",
+                      "error-container": "#ffdad6",
+                      "secondary": "#0050cc"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "lg": "24px",
+                      "xl": "40px",
+                      "sm": "8px",
+                      "md": "16px",
+                      "xs": "4px",
+                      "xxl": "80px",
+                      "container-max": "800px",
+                      "sidebar-width": "280px",
+                      "unit": "4px"
+              },
+              "fontFamily": {
+                      "display-lg": [
+                              "Geist"
+                      ],
+                      "editor-body-mobile": [
+                              "\"Source Serif 4\""
+                      ],
+                      "h1": [
+                              "Geist"
+                      ],
+                      "editor-body": [
+                              "\"Source Serif 4\""
+                      ],
+                      "h2": [
+                              "Geist"
+                      ],
+                      "display-lg-mobile": [
+                              "Geist"
+                      ],
+                      "ui-label": [
+                              "Geist"
+                      ],
+                      "ui-caption": [
+                              "Geist"
+                      ]
+              },
+              "fontSize": {
+                      "display-lg": [
+                              "40px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "editor-body-mobile": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "h1": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "editor-body": [
+                              "18px",
+                              {
+                                      "lineHeight": "1.7",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "h2": [
+                              "20px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "display-lg-mobile": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "ui-label": [
+                              "14px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "ui-caption": [
+                              "12px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "letterSpacing": "0.01em",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+</head>
+<body class="bg-surface-container-low text-on-surface min-h-screen flex flex-col font-editor-body selection:bg-secondary selection:bg-opacity-20 selection:text-on-surface">
+<!-- TopAppBar -->
+<header class="bg-surface border-b border-outline-variant docked full-width top flat no shadows flex justify-between items-center w-full px-lg py-sm max-w-container-max mx-auto z-50 fixed top-0 bg-opacity-95 backdrop-blur-sm">
+<div class="flex items-center gap-md">
+<div class="font-h2 text-h2 font-bold text-primary">Lexis</div>
+<nav class="hidden md:flex gap-lg ml-xl">
+<a class="font-ui-label text-ui-label text-primary font-bold border-b-2 border-primary pb-1" href="#">Documents</a>
+<a class="font-ui-label text-ui-label text-on-surface-variant hover:text-primary transition-colors pb-1" href="#">Library</a>
+</nav>
+</div>
+<div class="flex items-center gap-md">
+<button class="font-ui-label text-ui-label text-on-surface-variant hover:text-primary transition-colors flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]">share</span> Share
+            </button>
+<button class="font-ui-label text-ui-label text-on-surface-variant hover:text-primary transition-colors flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]">download</span> Export
+            </button>
+<button class="text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center p-1 rounded-full hover:bg-surface-container">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+<img alt="User profile" class="w-8 h-8 rounded-full border border-outline-variant object-cover ml-sm" data-alt="A small, circular avatar portrait of a professional woman with warm lighting, shot against a neutral studio background. The image is clean and corporate, fitting a minimalist light-mode design system. The colors are muted, focusing on soft grays, whites, and natural skin tones, creating a sense of calm and competence." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCI74pPL-38jyi5LO-73bqPmufxnXB-3WAe7pnOftWR5QnTDLWVI1hqBgrxoZw2R5fCSmEDFbP66TqTE7yMRpyR6YtLEVjKCPqIKYBzULssmj8jTZLygGUm6VoKRRfxbo32t8HR4W4ZygFDokP6WffasydcA9xs0LYl7gdyFS5bBNzvbmiRC8Y_cbH0qG2ij14GPShKjX8l-Mu7R6EF9-Y4M32swuzMNsnha8H4dctk8CznzjdYlZg"/>
+</div>
+</header>
+<!-- Main Workspace -->
+<main class="flex-grow pt-[80px] pb-xxl relative flex justify-center">
+<!-- Desk Background (Implicit via body bg) -->
+<!-- Document Container -->
+<article class="bg-surface-container-lowest w-full max-w-container-max mx-auto md:my-xl md:px-xl md:py-xxl px-md py-lg border border-surface-variant shadow-sm relative min-h-[800px]">
+<header class="mb-xl">
+<h1 class="font-display-lg text-display-lg text-on-surface mb-sm outline-none" contenteditable="true">Structural Integrity Assessment: Eastern Elevation</h1>
+<p class="font-ui-label text-ui-label text-on-surface-variant">Prepared by M. Sterling · Oct 24, 2023</p>
+</header>
+<div class="space-y-lg font-editor-body text-editor-body text-on-surface outline-none" contenteditable="true">
+<p>Initial surveys of the primary load-bearing structures indicate expected weathering patterns consistent with a facility of this age and exposure. The foundation settling remains within tolerances documented in the original 1998 architectural plans, showing no sign of accelerated degradation in the northern or western quadrants.</p>
+<p>However, targeted investigation into the moisture barrier systems has revealed localized failures. <span class="bg-secondary bg-opacity-10 text-secondary cursor-pointer hover:bg-opacity-20 px-1 rounded transition-colors" data-evidence-target="wall-assessment">Structural assessment of the eastern wall indicates a severe ingress of ambient moisture over the preceding 18 months.</span> This has led to accelerated oxidation of the rebar lattice and subsequent spalling of the concrete facing, particularly concentrated around the secondary drainage vents.</p>
+<p>Remediation must be prioritized to prevent further lateral spread of the moisture damage. Immediate sealing of the external micro-fractures, followed by a comprehensive structural reinforced epoxy injection, is recommended. Delaying these interventions could compromise the integrity of the adjacent structural columns, leading to a cascading failure scenario necessitating more invasive and costly repairs.</p>
+</div>
+<!-- Contextual Evidence Rail / Gutter (Absolute positioned relative to document) -->
+<!-- Positioned specifically next to the highlighted paragraph -->
+<aside class="absolute top-[320px] -right-[300px] w-sidebar-width hidden xl:flex flex-col gap-md pl-lg border-l border-outline-variant border-dashed">
+<!-- Add Evidence Button (Contextual) -->
+<button class="font-ui-label text-ui-label text-secondary flex items-center gap-xs hover:bg-secondary hover:bg-opacity-10 px-sm py-xs rounded transition-colors self-start mb-xs">
+<span class="material-symbols-outlined text-[16px]">add_circle</span> Add Evidence
+                </button>
+<!-- Evidence Card 1: Photo -->
+<div class="bg-surface-container-lowest border border-primary rounded shadow-[0_4px_12px_rgba(0,0,0,0.08)] p-sm cursor-pointer hover:border-primary transition-colors relative group">
+<div class="absolute -left-[30px] top-4 w-6 h-[1px] bg-primary"></div> <!-- Connecting line -->
+<div class="flex items-center gap-xs mb-xs">
+<span class="material-symbols-outlined text-on-surface-variant text-[16px]">image</span>
+<span class="font-ui-caption text-ui-caption text-on-surface-variant">IMG_8932.jpg · Oct 12</span>
+</div>
+<img class="w-full h-32 object-cover rounded-sm mb-xs border border-outline-variant" data-alt="A close-up photograph of a weathered concrete wall showing significant spalling and exposed, rusted rebar. The lighting is harsh and natural, highlighting the texture and damage. The image fits within a professional engineering report context, utilizing neutral, realistic colors with a focus on grays, browns, and rust orange against a stark background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDkwwQN-uAbBJZtywezyjf4oKuet__TC51zwDFT0SP0JBfCOt5KElvJQrsWN07F7kq4mLohGmzcR7yE8duU927mRXOn7sFS_WyjlteivwD3O6k9-jw1Dx-DHM44NqpPTbOnimh_OtZEpUHUfEM0qZI8YSY1sasEOrv226gz3C7tujQO_yeQd55ChUNkf7XVWwD9HjukYmhjQKrcpI6oDi-1SOdGGS1ncUtNku67DeqNYcwDMAAAIYk"/>
+<p class="font-ui-caption text-ui-caption text-on-surface line-clamp-2">Visual confirmation of spalling near vent aperture #4 on eastern elevation.</p>
+</div>
+<!-- Evidence Card 2: PDF Report -->
+<div class="bg-surface-container-lowest border border-surface-variant rounded p-sm cursor-pointer hover:border-primary transition-colors relative opacity-80 hover:opacity-100">
+<div class="flex items-center gap-xs mb-xs">
+<span class="material-symbols-outlined text-on-surface-variant text-[16px]">picture_as_pdf</span>
+<span class="font-ui-caption text-ui-caption text-on-surface-variant">Moisture_Analysis_Q3.pdf</span>
+</div>
+<div class="bg-surface-container p-xs rounded-sm mb-xs">
+<p class="font-editor-body text-[12px] leading-snug text-on-surface font-serif italic">"...core samples from the eastern facing demonstrate a moisture saturation level exceeding 15% above baseline tolerances..."</p>
+</div>
+</div>
+<!-- Evidence Card 3: Invoice -->
+<div class="bg-surface-container-lowest border border-surface-variant rounded p-sm cursor-pointer hover:border-primary transition-colors relative opacity-80 hover:opacity-100">
+<div class="flex items-center gap-xs mb-xs">
+<span class="material-symbols-outlined text-on-surface-variant text-[16px]">receipt_long</span>
+<span class="font-ui-caption text-ui-caption text-on-surface-variant">INV-Apex-Drilling.pdf</span>
+</div>
+<div class="flex justify-between items-center border-t border-surface-variant pt-xs mt-xs">
+<span class="font-ui-caption text-ui-caption text-on-surface font-medium">Core Sampling Services</span>
+<span class="font-ui-label text-ui-label text-on-surface">$1,450.00</span>
+</div>
+</div>
+</aside>
+</article>
+</main>
+</body></html>
