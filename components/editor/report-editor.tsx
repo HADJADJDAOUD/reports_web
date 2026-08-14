@@ -18,6 +18,7 @@ import { AttachmentPreview } from "./attachment-preview";
 import { EvidenceRail } from "./evidence-list";
 import { SaveStateBadge, type SaveState } from "./save-state";
 import { ExportButton } from "./export-button";
+import { ShareButton } from "./share-button";
 import { BlockId } from "./extensions/block-id";
 import {
   AttachmentChips,
@@ -373,6 +374,12 @@ export function ReportEditor({
                 setDirection(next);
                 scheduleSave();
               }}
+            />
+            <ShareButton
+              reportId={report.id}
+              reportTitle={title}
+              attachmentCount={attachments.length}
+              beforeShare={() => save({ immediate: true })}
             />
             <ExportButton
               reportId={report.id}

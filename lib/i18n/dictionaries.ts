@@ -54,6 +54,8 @@ const en = {
     bodyPlaceholder: "Start writing the report…",
     export: "Export PDF",
     exporting: "Preparing PDF…",
+    share: "Share by email",
+    sharing: "Preparing files…",
     saved: "Saved",
     saving: "Saving…",
     unsaved: "Unsaved changes",
@@ -121,6 +123,17 @@ const en = {
     listEmpty: "Nothing attached yet.",
     unlinked: "Text removed — evidence kept",
   },
+  share: {
+    subject: (title: string) => `Report: ${title}`,
+    body: (title: string, files: string) =>
+      `Attached: the report "${title}" and its supporting documents.\n\n${files}\n\nOpen the report and click a file reference to open the matching document. Keep all the files in one folder.`,
+    noFiles: "Add some evidence first, then you can share the report with it.",
+    fallback:
+      "Your browser cannot attach files to an email directly. The report and its files have been downloaded — attach them to the draft that just opened.",
+    failed: "Sharing failed. You can export the files and attach them manually.",
+    tooLarge:
+      "These files are too large for your device to share at once. Export them instead and attach them manually.",
+  },
   export: {
     ready: "Your PDF is ready.",
     download: "Download",
@@ -180,6 +193,8 @@ const ar: Dictionary = {
     bodyPlaceholder: "ابدأ كتابة التقرير…",
     export: "تصدير PDF",
     exporting: "جارٍ تجهيز الملف…",
+    share: "مشاركة بالبريد",
+    sharing: "جارٍ تجهيز الملفات…",
     saved: "تم الحفظ",
     saving: "جارٍ الحفظ…",
     unsaved: "تغييرات غير محفوظة",
@@ -247,6 +262,17 @@ const ar: Dictionary = {
     listTitle: "المستندات المرفقة بهذا التقرير",
     listEmpty: "لا توجد مرفقات بعد.",
     unlinked: "حُذف النص — والمرفق محفوظ",
+  },
+  share: {
+    subject: (title: string) => `تقرير: ${title}`,
+    body: (title: string, files: string) =>
+      `مرفق: التقرير «${title}» والمستندات المؤيدة له.\n\n${files}\n\nافتح التقرير وانقر على أي مرجع ملف ليُفتح المستند المقابل. أبقِ جميع الملفات في مجلد واحد.`,
+    noFiles: "أضف مستنداً مؤيداً أولاً، ثم يمكنك مشاركة التقرير معه.",
+    fallback:
+      "متصفحك لا يستطيع إرفاق الملفات بالبريد مباشرة. تم تنزيل التقرير وملفاته — أرفقها بالرسالة التي فُتحت الآن.",
+    failed: "فشلت المشاركة. يمكنك تصدير الملفات وإرفاقها يدوياً.",
+    tooLarge:
+      "حجم الملفات أكبر مما يستطيع جهازك مشاركته مرة واحدة. صدّرها وأرفقها يدوياً.",
   },
   export: {
     ready: "ملف PDF جاهز.",
