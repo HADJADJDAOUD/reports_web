@@ -123,6 +123,15 @@ const en = {
     listEmpty: "Nothing attached yet.",
     unlinked: "Text removed — evidence kept",
   },
+  viewer: {
+    reference: (index: number) => `Attachment ${String(index).padStart(2, "0")}`,
+    back: "Back to the report",
+    openExternally: "Open in a new tab",
+    notShowing:
+      "If the document does not appear, open it in a new tab or download it.",
+    unavailable: "This document could not be loaded.",
+    offlineCopy: "Available offline",
+  },
   share: {
     subject: (title: string) => `Report: ${title}`,
     body: (title: string, files: string) =>
@@ -262,6 +271,14 @@ const ar: Dictionary = {
     listTitle: "المستندات المرفقة بهذا التقرير",
     listEmpty: "لا توجد مرفقات بعد.",
     unlinked: "حُذف النص — والمرفق محفوظ",
+  },
+  viewer: {
+    reference: (index: number) => `المرفق ${String(index).padStart(2, "0")}`,
+    back: "رجوع إلى التقرير",
+    openExternally: "فتح في تبويب جديد",
+    notShowing: "إن لم يظهر المستند، افتحه في تبويب جديد أو نزّله.",
+    unavailable: "تعذّر تحميل هذا المستند.",
+    offlineCopy: "متاح دون اتصال",
   },
   share: {
     subject: (title: string) => `تقرير: ${title}`,

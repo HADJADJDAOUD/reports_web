@@ -16,6 +16,25 @@ export async function loadOwnedReport(
   return report;
 }
 
+/**
+ * Loads one attachment by its own id, asserting ownership in the same query.
+ *
+ * This is what makes an attachment addressable as `/attachments/{id}` — the
+ * caller needs nothing but the id, and never a storage URL. The report-scoped
+ * route stays as it is for the editor.
+ */
+export async function loadOwnedAttachment(
+  attachmentId: ObjectId,
+  ownerId: ObjectId,
+): Promise<AttachmentDoc> {
+  const attachment = await (await attachments()).findOne({
+    _id: attachmentId,
+    ownerId,
+  });
+  if (!attachment) throw notFound("Attachment not found");
+  return attachment;
+}
+
 export async function loadReportAttachments(
   reportId: ObjectId,
   ownerId: ObjectId,

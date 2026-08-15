@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   EditorContent,
   useEditor,
@@ -14,7 +15,6 @@ import { Placeholder } from "@tiptap/extensions";
 import { Paperclip } from "lucide-react";
 import { Toolbar } from "./toolbar";
 import { AttachDialog } from "./attach-dialog";
-import { AttachmentPreview } from "./attachment-preview";
 import { EvidenceRail } from "./evidence-list";
 import { SaveStateBadge, type SaveState } from "./save-state";
 import { ExportButton } from "./export-button";
@@ -51,6 +51,7 @@ export function ReportEditor({
   uploadMaxBytes: number;
 }) {
   const { t } = useLocale();
+  const router = useRouter();
 
   const [title] = useState(report.title);
   const [subtitle] = useState(report.subtitle);
@@ -64,7 +65,6 @@ export function ReportEditor({
   const [dialogTarget, setDialogTarget] = useState<
     { kind: "block"; blockId: string } | { kind: "replace"; attachmentId: string } | null
   >(null);
-  const [previewId, setPreviewId] = useState<string | null>(null);
 
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pendingSave = useRef(false);
@@ -331,7 +331,8 @@ export function ReportEditor({
       if (trigger.dataset.chipAction === "remove") {
         void removeAttachment(attachmentId);
       } else {
-        setPreviewId(attachmentId);
+        // Navigate to the application-level attachment viewer
+        router.push(`/attachments/${attachmentId}`);
       }
     };
 
@@ -357,8 +358,6 @@ export function ReportEditor({
    * action could immediately close it again.
    */
   const clearIntent = useCallback(() => setIntent(null), []);
-
-  const previewAttachment = attachments.find((item) => item.id === previewId);
 
   /* ------------------------------------------------------------------- view */
 
@@ -430,7 +429,7 @@ export function ReportEditor({
         </div>
       </div>
 
-      {intent && intentAt && !dialogTarget && !previewId && (
+      {intent && intentAt && !dialogTarget && (
         <button
           type="button"
           data-attach-action
@@ -477,14 +476,6 @@ export function ReportEditor({
             setDialogTarget(null);
             clearIntent();
           }}
-        />
-      )}
-
-      {previewAttachment && (
-        <AttachmentPreview
-          reportId={report.id}
-          attachment={previewAttachment}
-          onClose={() => setPreviewId(null)}
         />
       )}
     </>
