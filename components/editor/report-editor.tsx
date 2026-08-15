@@ -52,8 +52,8 @@ export function ReportEditor({
 }) {
   const { t } = useLocale();
 
-  const [title, setTitle] = useState(report.title);
-  const [subtitle, setSubtitle] = useState(report.subtitle);
+  const [title] = useState(report.title);
+  const [subtitle] = useState(report.subtitle);
   const [direction, setDirection] = useState(report.direction);
   const [attachments, setAttachments] = useState(initialAttachments);
   const [saveState, setSaveState] = useState<SaveState>("saved");
@@ -416,30 +416,6 @@ export function ReportEditor({
           className="doc-surface rounded border border-line bg-paper px-6 py-10 shadow-[0_1px_2px_rgba(26,28,28,0.04)] sm:px-12 sm:py-14"
           dir={direction}
         >
-          <input
-            value={title}
-            onChange={(event) => {
-              setTitle(event.target.value);
-              scheduleSave();
-            }}
-            placeholder={t.editor.titlePlaceholder}
-            maxLength={300}
-            aria-label={t.editor.titlePlaceholder}
-            className="w-full border-0 bg-transparent text-[1.75rem] font-bold leading-tight outline-none placeholder:text-ink-faint/60"
-            style={{ fontFamily: "var(--font-doc)" }}
-          />
-          <input
-            value={subtitle}
-            onChange={(event) => {
-              setSubtitle(event.target.value);
-              scheduleSave();
-            }}
-            placeholder={t.editor.subtitlePlaceholder}
-            maxLength={300}
-            aria-label={t.editor.subtitlePlaceholder}
-            className="font-ui mt-1 w-full border-0 bg-transparent text-sm text-ink-soft outline-none placeholder:text-ink-faint/60"
-          />
-          <hr className="my-6 border-line" />
           <EditorContent editor={editor} />
         </article>
 
