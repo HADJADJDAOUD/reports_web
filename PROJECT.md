@@ -25,7 +25,7 @@ deliberately reduced the scope to this proof of concept.
 ### The flow that must work
 
 ```
-LOGIN → CREATE REPORT → WRITE / EDIT → DOUBLE-CLICK TEXT → ATTACH FILE
+LOGIN → CREATE REPORT → WRITE / EDIT → SELECT TEXT → ATTACH FILE
       → SAVE → EXPORT → DOWNLOAD → OPEN OFFLINE → OPEN THE EVIDENCE
 ```
 
@@ -38,7 +38,7 @@ LOGIN → CREATE REPORT → WRITE / EDIT → DOUBLE-CLICK TEXT → ATTACH FILE
 | 3 | Create, save, reopen, edit a report | `app/api/reports/*`, `components/editor/report-editor.tsx` |
 | 4 | Professional rich-text editor (headings, bold/italic/underline/strike, ordered + unordered lists, alignment, RTL/LTR, links, tables, undo/redo, clear formatting) | `components/editor/toolbar.tsx` |
 | 5 | Arabic (RTL) and English (LTR), both correct, switchable per block | `lib/i18n/*`, `components/editor/extensions/text-direction.ts` |
-| 6 | Double-click existing text → "Add Attachment" for **that block** | `report-editor.tsx` (`handleDoubleClick`), `extensions/attach-target.ts` |
+| 6 | Select existing text → "Add Attachment" for **that block** (double click, drag, or long press on a phone) | `report-editor.tsx`, `extensions/attach-target.ts` (`selectionTarget`) |
 | 7 | Upload PDF or image; images converted to PDF; PDFs kept as-is | `lib/attachments/*` |
 | 8 | Multiple attachments per block; open, remove, replace | `evidence-list.tsx`, `app/api/reports/[id]/attachments/**` |
 | 9 | Compact inline file chip in editor, preview and exported PDF | `extensions/attachment-chips.ts`, `lib/pdf/renderer.ts` |
@@ -60,7 +60,7 @@ admin panel.
 | --- | --- |
 | 1–2. Log in, create a report | Session JWT + `POST /api/reports` |
 | 3–4. Write and format Arabic and English | Tiptap with per-block `dir`; Amiri + PT Serif in the editor, same pair in the PDF |
-| 5–6. Double-click text, attachment action appears | `handleDoubleClick` resolves the nearest non-empty text block and offers the action anchored to it |
+| 5–6. Select text, attachment action appears | `selectionTarget` resolves the nearest non-empty text block from the selection and the action is anchored to it |
 | 7–8. Upload a PDF, visibly associated with the right content | Chip decoration keyed on the block's `blockId` |
 | 9–11. Upload an image, converted to PDF, becomes the attachment | `lib/attachments/image-to-pdf.ts`; the original image is deleted |
 | 12–13. Multiple attachments; removable | `blockIds[]` is many-to-many; delete removes metadata and the R2 object |
@@ -292,6 +292,22 @@ names on disk always match the links in the PDF.
 
 **There is no ZIP.** It was tried (attempt 3) and rejected: unpacking is a manual
 step, and a report previewed from inside an archive can never resolve its links.
+
+### Mobile: an unresolved platform limit
+
+**On phones, none of this works, and it cannot be made to.** Android and iOS hand
+a downloaded PDF to the viewer through a sandboxed `content://` handle rather than
+a filesystem path. There is no directory beside the file, and no mobile viewer
+(Chrome Android, iOS Safari/Files, Google Drive) resolves a relative link to a
+local sibling. Confirmed by the client on Android Chrome: the files download, and
+tapping a reference does nothing.
+
+The only mechanism that reaches evidence on a phone is having it **inside the same
+PDF** — as pages, since mobile viewers have no attachments pane either. That
+contradicts the client's instruction that evidence must never appear in the report,
+so it is an open product decision rather than a bug to fix. The options, and the
+argument that an *annex section after the report* is standard practice for filed
+exhibits, are written up in CHECKPOINT.md §2.
 
 ### The constraint behind all five attempts
 

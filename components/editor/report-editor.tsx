@@ -378,7 +378,6 @@ export function ReportEditor({
             <ShareButton
               reportId={report.id}
               reportTitle={title}
-              attachmentCount={attachments.length}
               beforeShare={() => save({ immediate: true })}
             />
             <ExportButton

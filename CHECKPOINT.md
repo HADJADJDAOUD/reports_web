@@ -1,145 +1,189 @@
-# Checkpoint — Lexis (reports with embedded evidence)
+# Checkpoint — resume here
 
-Written to hand this work to a fresh session. Everything below reflects the
-state of the repo at `D:\projects\Free\reports_web`.
+State of `D:\projects\Free\reports_web` at the end of the session on
+**2026-08-15**. Written to pick the work up cold tomorrow.
 
-## Status: the MVP is built, verified, and builds clean
-
-All six planned work items are done. `npm run build`, `npm run typecheck` and
-`npx eslint .` are all clean, and three verification suites pass.
-
-Read [`README.md`](README.md) first — it documents the architecture, the PDF
-embedding approach, deployment, and the honest viewer-support limits. This file
-only covers what a *continuing session* needs to know.
+- **Scope, architecture and every decision** → [`PROJECT.md`](PROJECT.md)
+- **How to run, verify, deploy** → [`README.md`](README.md)
+- **This file** → where things stand, what is open, what to do first.
 
 ---
 
-## What was verified, and how
+## 1. Status
 
-| Suite | Command | Result |
-| --- | --- | --- |
-| Bidi/Arabic ordering | `npm run verify:bidi` | 12/12 cases match bidi-js's reference implementation |
-| PDF export + embedding | `npm run verify:export` | all checks pass, incl. MuPDF resolving every chip to byte-identical evidence |
-| Whole product flow | `npm run verify:api` (needs a running server) | 27/27 checks pass |
-| Build / types / lint | `npm run build`, `npm run typecheck`, `npx eslint .` | clean |
+The MVP is built and pushed. `npm run build`, `npm run typecheck` and
+`npx eslint .` are all clean. Working tree is clean; three commits on `master`,
+pushed to `github.com/HADJADJDAOUD/reports_web`.
 
-Browser flow was also driven manually end to end against the sandbox: register →
-create → type Arabic → switch RTL → **double-click text → "Add Attachment"** →
-upload a PDF with an Arabic file name → inline chip appears → edit surrounding
-text (block id and chip survive) → reload (chip persists) → open preview →
-remove → export (200, `application/pdf`, embedded files present) → Arabic UI
-locale switch (`lang=ar`, `dir=rtl`).
+The client has been testing a deployed copy on desktop and on Android Chrome.
+Desktop works end to end. **One open problem, on phones — see §2.**
 
-## Three real bugs were found by running it, and fixed
+### What works, confirmed by the client
 
-1. **Export 500 on any report with an empty subtitle** — PDFKit writes the `info`
-   dict verbatim and chokes on a key whose value is `undefined`. Fixed in
-   `lib/pdf/renderer.ts` (the `info` object is now built conditionally).
-2. **First autosave rejected with 400** — a freshly loaded document has
-   `blockId: null` on blocks until something is edited, and the schema only
-   accepted `optional()`. Fixed in two places: `lib/doc/schema.ts` accepts
-   `nullish()`, and `components/editor/extensions/block-id.ts` now assigns ids in
-   `onCreate()` so every block is attachable and saveable from first render.
-3. **Footer added a spurious blank page** — passing `width` to PDFKit's `text()`
-   routes through its line wrapper, which paginates on its own. All page
-   furniture now draws through the project's own bidi pipeline at explicit
-   coordinates (`drawSansLine`).
-
-Regression coverage for #1 and #2 lives in `scripts/verify-export.ts`
-("an empty report still exports…", "blocks without ids and LETTER page size…").
+- Sign in, create a report, write Arabic and English, format, save, reopen.
+- Select text → **Add Attachment** → upload PDF or image → chip appears inline,
+  anchored to that block and surviving edits.
+- Export downloads the report and its attachments.
 
 ---
 
-## The one thing left unfinished
+## 2. THE OPEN DECISION — start here tomorrow
 
-**A polished demo PDF to hand to the client.** A script exists at
-`C:\Users\GenDex\AppData\Local\Temp\claude\D--projects-Free-reports-web\aa3b172b-9580-469b-918f-d572f070f698\scratchpad\demo.mjs`
-(scratchpad, not part of the repo). It talks to a running server over plain
-`fetch` — no project imports — and builds a realistic Arabic complaint report
-(ordered list, table, English justified section, three attachments including an
-image that gets converted), then writes the export to a path given as `argv[2]`.
+**Problem:** on a phone, tapping a file reference in the exported report does
+nothing. The file is downloaded and present, but the reference cannot reach it.
 
-It was launched and **failed** with `UND_ERR_HEADERS_TIMEOUT` — the sandbox dev
-server had stopped responding by then (its stdout was redirected into a
-directory that later got deleted during cleanup, which probably killed it). The
-script itself was never exercised, so treat it as unrun *and* unproven. Start a
-fresh sandbox before trying it, and don't redirect that server's output into a
-temporary directory. To finish:
+**Cause — a platform limit, not a bug.** Android and iOS hand a downloaded PDF to
+the viewer through a sandboxed `content://` handle rather than a real filesystem
+path. There is no "folder next to this file", and no mobile PDF viewer (Chrome
+Android, iOS Safari/Files, Google Drive) resolves a relative link to a local
+sibling file. iPhone will behave identically. Nothing that can be written into the
+PDF changes this.
 
-```bash
-npm run dev:sandbox           # terminal 1
-node <scratchpad>/demo.mjs <scratchpad>/lexis-demo-report.pdf   # terminal 2
+**The only mechanism that works on a phone is the evidence being inside the same
+PDF.** A question was put to the client and is **unanswered** — this is the thing
+to settle first:
+
+| Option | What it means |
+| --- | --- |
+| **A — one PDF, evidence as annexes** *(recommended)* | Report body unchanged: text with small chips, nothing inline. After the report ends, an "Annexes / المرفقات" section: each attachment on its own page under a small header (`المرفق ١ — حوالة الورشة.pdf`). A chip jumps to that page. One file, no folder, no zip. Works on iPhone, Android, Chrome, Acrobat — offline — and is a single email attachment. This is how exhibits are filed behind a pleading, so the "not formal" objection may not apply to an annex section. |
+| **B — leave as-is** | Keep report + separate files. References work on a computer only; on a phone the reader opens files from the folder by number. No code change. |
+| **C — both, two buttons** | Export keeps the separate files for filing; a second button produces the single-file annex PDF for phones and email. |
+
+Note the history before re-arguing this: the client explicitly rejected evidence
+pages once ("the attachments should not appear in the pdf report page ever, its
+not formal"). Option A differs in that the evidence sits in a clearly separated
+annex section *after* the report, not among its paragraphs. If A is chosen, most
+of the machinery already existed and was deleted — see the git history of
+`lib/pdf/renderer.ts` for `drawAttachmentCovers`, and PROJECT.md §5a.
+
+---
+
+## 3. How the export works today
+
+```
+تقرير.pdf
+attachments-<report-slug>/
+├── 01-hwala-aslah.pdf
+└── 02.pdf
 ```
 
-Then send that PDF to the user so they can open it in Acrobat Reader and check
-the Attachments pane themselves. Nothing in the product depends on this — it is
-purely a deliverable artifact.
+- Each chip in the PDF is a **relative link** to its file. No embedded files, no
+  attachments index page, no FileAttachment annotations, no ZIP — all were built
+  and removed, for reasons recorded in PROJECT.md §5a.
+- **Chrome/Edge desktop:** `showDirectoryPicker()` asks once for a location and the
+  client writes the report and the folder itself. This is the only way a web page
+  can create a folder — browsers strip path separators from the `download`
+  attribute.
+- **Everywhere else (incl. Android Chrome):** the files download side by side, and
+  the report is rendered with **flat** links to match. Hence `?layout=folder|flat`
+  on the export route.
+- `lib/pdf/bundle.ts` is the single source of every name — folder, files, links.
+  The renderer, the manifest route and the download route all read it. **If they
+  drift, every reference breaks.**
 
-### Also worth knowing
-
-- A **sandbox dev server may still be running** from the previous session on
-  `http://localhost:3000` (started via `npm run dev:sandbox`). Its MongoDB is
-  in-memory, so all data disappears when the process stops. Restart it freely.
-- Demo credentials created during verification only exist in that in-memory
-  database. Register a fresh account after any restart.
-- `verify-output.pdf` in the repo root is generated by `verify:export` and is
-  gitignored.
-- The repo is a git repository with **no commits yet** (scaffolded by
-  `create-next-app`). Nothing has been committed or pushed — the user has not
-  asked for that.
+There is also a **Share by email** button: it hands the report plus all files to
+the device share sheet (`navigator.share` with files), so on a phone the user picks
+Gmail and everything is attached. It fetches the report with *flat* links, because
+email attachments all land in one folder. Desktop browsers without file sharing
+download the files and open an empty `mailto:` draft instead — `mailto:` cannot
+carry attachments, that parameter is not standard and is ignored everywhere.
 
 ---
 
-## Orientation for a new session
+## 4. Verification status — read before trusting the suites
 
-### Where the interesting logic lives
+| Suite | State |
+| --- | --- |
+| `npm run verify:bidi` | Last run **green**, 12/12 against bidi-js's reference implementation. Unaffected by recent changes. |
+| `npm run verify:export` | **Updated but not re-run.** Its assertions were rewritten several times as the export format changed (no embedded files, links now relative, folder layout). Run it first tomorrow. |
+| `npm run verify:api` | **Updated but not re-run.** Needs `npm run dev:sandbox` in another terminal. |
+| `npm run build` / `typecheck` / `lint` | Clean as of the last change. |
+
+Everything since the "phone support" commit was typechecked, linted and built, but
+**not exercised at runtime** — the client asked for no test runs and said they
+would test themselves.
+
+---
+
+## 5. Fixed this session
+
+1. **Mobile: no "Add Attachment" on text selection.** The action was bound to
+   `dblclick`, which Android Chrome does not reliably deliver — selection there is
+   a long press. Now driven by the **selection** itself
+   (`selectionTarget` in `extensions/attach-target.ts`), which covers double click,
+   drag and long press identically. Opens on `pointerdown`, because a tap would
+   otherwise collapse the selection before `click` arrived.
+2. **Everything actionable was hover-gated**, so on a phone you could not remove a
+   chip, replace/delete a file in the rail, or delete a report. Fixed with
+   `@media (hover: none)`.
+3. **Chips made much smaller**, names clipped to 10 characters including `.pdf`
+   (`shortFileName` in `lib/attachments/file-types.ts`); full name on hover and in
+   the rail.
+4. **Untitled reports** no longer print the words "Untitled report" — the title
+   area is left blank.
+5. **Evidence list moved to a left rail** beside the document, sticky, dropping
+   below the document on narrow screens.
+6. Earlier in the session: export 500 on an empty subtitle, first-autosave 400 on
+   `blockId: null`, and a spurious blank page from PDFKit's line wrapper.
+
+---
+
+## 6. Deployment
+
+The repo is pushed. The deploy steps are in README §Deploying. Two things that
+bite, both already documented there: MongoDB Atlas must allow `0.0.0.0/0`
+(Vercel has no fixed IPs), and the R2 bucket needs a CORS rule allowing `PUT`
+from the deployment origin, or browser uploads fail silently.
+
+If the demo link should stop accepting new sign-ups, set
+`AUTH_ALLOW_REGISTRATION=false` and redeploy.
+
+---
+
+## 7. Known limitations, honestly
+
+- **Phone references do not open** — §2, the open decision.
+- **Relative links depend on the desktop viewer.** Firefox's pdf.js and Acrobat
+  follow them; Chrome desktop was observed following them correctly. If a viewer
+  ever refuses, the fallback to try is a `/Launch` action instead of a URI action
+  in `linkChipToFile` (`lib/pdf/renderer.ts`).
+- **Re-exporting** the flat layout over an older set makes the browser save
+  `01-x (1).pdf` while the links still point at `01-x.pdf`. The folder layout does
+  not have this problem.
+- **iOS Safari** may refuse `navigator.share` because files are fetched before the
+  call, which can drop the user-activation. Android is fine.
+- **Only JPEG and PNG** convert to PDF (`pdf-lib` limitation). No WebP or HEIC —
+  HEIC matters for iPhone photos and would need a decoder that runs on Vercel.
+- **Tashkeel-heavy Arabic** has not been looked at closely; leading is set
+  generously (1.78) for that reason.
+
+---
+
+## 8. Orientation
 
 | File | Why it matters |
 | --- | --- |
-| `lib/pdf/renderer.ts` | The whole PDF: custom line layout on PDFKit, chips, tables, pagination, embedded files + FileAttachment annotations |
-| `lib/pdf/bidi-text.ts` | Atoms, bidi levels, mirroring, and the reversal rule fontkit needs (read the comment on `needsManualReverse`) |
-| `lib/pdf/fonts.ts` | Which of the three embedded families is used for which script |
+| `lib/pdf/renderer.ts` | The PDF: custom bidi line layout on PDFKit, chips, tables, pagination, links |
+| `lib/pdf/bidi-text.ts` | Atoms, bidi levels, mirroring — read the comment on `needsManualReverse` before touching Arabic |
+| `lib/pdf/bundle.ts` | Single source of the export's folder and file names |
+| `lib/pdf/export.ts` | Loads evidence from R2, decides layout, renders |
+| `components/editor/report-editor.tsx` | Composition root: autosave, selection-driven attach, modals |
 | `components/editor/extensions/block-id.ts` | Stable block ids — the anchor attachments hang from |
-| `components/editor/extensions/attachment-chips.ts` | Chips as widget decorations; DOM only, clicks handled by delegation in `report-editor.tsx` |
+| `components/editor/extensions/attachment-chips.ts` | Chips as widget decorations; clicks delegated in the editor |
 | `lib/attachments/service.ts` | Upload finalisation: magic-byte validation, image→PDF, R2 bookkeeping |
-| `lib/doc/schema.ts` | The whitelist that makes stored rich text safe |
+| `lib/doc/schema.ts` | The whitelist that keeps stored rich text safe |
 
-### Conventions that were deliberate
+### Conventions that are load-bearing
 
 - **No callbacks inside Tiptap extensions.** Chip clicks are delegated from the
-  document element in `report-editor.tsx`. This keeps the React 19 lint rules
-  (`react-hooks/refs`, `react-hooks/immutability`) satisfied — they are enforced
-  and the build fails otherwise.
-- **Never use PDFKit's `text()` with `width`/`align` for report content.** It
-  bypasses the bidi pipeline and can paginate unexpectedly. Draw through
-  `drawLines` / `drawSansLine`.
-- `middleware.ts` was renamed to `proxy.ts` (Next 16 convention); the exported
-  function is `proxy`.
+  document element. The React 19 lint rules (`react-hooks/refs`,
+  `set-state-in-effect`) are enforced and will fail the build otherwise.
+- **Never call PDFKit's `text()` with `width`/`align` for report content** — it
+  bypasses the bidi pipeline and paginates on its own. Draw through `drawLines` /
+  `drawSansLine`.
+- `middleware.ts` is `proxy.ts` in Next 16; the export is `proxy`.
 - Fonts in `assets/fonts` are committed on purpose and shipped to the export
   function via `outputFileTracingIncludes` in `next.config.ts`.
-
-### Handy local tools that were used and then deleted
-
-The `.spikes/` directory (rasterising a PDF page to PNG with `mupdf`, cropping a
-region at high zoom, dumping text with positions) was removed during cleanup.
-`mupdf` is still a devDependency, so recreate a small script if visual
-inspection of an exported PDF is needed again — reading a rasterised crop is by
-far the fastest way to check Arabic shaping and chip placement.
-
----
-
-## If the client asks for changes next
-
-Likely requests, and where they land:
-
-- **Chip appearance** → `CHIP` constants and `drawChip` in `lib/pdf/renderer.ts`
-  for the export; `.chip*` rules in `app/globals.css` for the editor. Keep the
-  two in step — the editor is meant to preview the print result.
-- **Page size / margins / footer text** → `PDF_PAGE_SIZE` and `PDF_FOOTER_TEXT`
-  env vars, `MARGIN` in the renderer.
-- **Body typography** → `BODY_SIZE`, `HEADING_SIZES`, `LEADING`,
-  `BASELINE_RATIO`, `ARABIC_SIZE_SCALE`. Arabic leading is deliberately looser
-  (1.78) so Amiri's ascenders and descenders never collide.
-- **More upload formats** (e.g. WebP, HEIC) → would need a raster decoder;
-  `pdf-lib` only embeds JPEG and PNG. Do not add a native dependency without
-  checking it works on Vercel.
+- `mupdf` is a devDependency kept for rasterising an export to check Arabic
+  shaping by eye. Reading a rasterised crop is by far the fastest way to verify
+  PDF output; write a throwaway script in a gitignored folder when needed.

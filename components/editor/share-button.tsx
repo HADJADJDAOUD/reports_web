@@ -27,12 +27,10 @@ interface ShareManifest {
 export function ShareButton({
   reportId,
   reportTitle,
-  attachmentCount,
   beforeShare,
 }: {
   reportId: string;
   reportTitle: string;
-  attachmentCount: number;
   beforeShare: () => Promise<void>;
 }) {
   const { t } = useLocale();
@@ -116,9 +114,6 @@ export function ShareButton({
       setBusy(false);
     }
   }
-
-  // Sharing a report with no evidence is just sending a PDF; Export covers that.
-  if (attachmentCount === 0) return null;
 
   return (
     <div className="relative">
