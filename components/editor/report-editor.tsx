@@ -401,7 +401,7 @@ export function ReportEditor({
             <EvidenceRail
               attachments={attachments}
               knownBlockIds={knownBlockIds}
-              onOpen={(id) => setPreviewId(id)}
+              onOpen={(id) => router.push(`/attachments/${id}`)}
               onRemove={(id) => void removeAttachment(id)}
               onReplace={(id) =>
                 setDialogTarget({ kind: "replace", attachmentId: id })
