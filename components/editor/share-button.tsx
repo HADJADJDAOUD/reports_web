@@ -7,22 +7,14 @@ import { useLocale } from "@/lib/i18n/client";
 
 interface ShareManifest {
   reportFileName: string;
-  reportUrlFlat: string;
-  files: { fileName: string; displayName: string; url: string }[];
+  reportUrl: string;
+  files: never[]; // No separate files - attachments are embedded
 }
 
 /**
- * Hands the report and its evidence to the device's share sheet, so the user can
- * pick their mail app and send everything in one message.
+ * Hands the report PDF to the device's share sheet.
  *
- * `mailto:` cannot carry attachments — the `attachment` parameter is not part of
- * the standard and every mail client ignores it — so the Web Share API is the only
- * way a web page can put real files into an email. Where it is unavailable
- * (desktop Firefox and Safari, mostly) the files are downloaded and an empty draft
- * is opened for the user to attach them to.
- *
- * The report is fetched with **flat** links, because email attachments all land in
- * one folder on the recipient's machine — there is no folder to point into.
+ * Since attachments are now embedded in the PDF, only a single file needs to be shared.
  */
 export function ShareButton({
   reportId,
@@ -74,35 +66,20 @@ export function ShareButton({
       const manifest = (await response.json()) as ShareManifest;
 
       const title = reportTitle.trim() || manifest.reportFileName;
-      const names = [
-        manifest.reportFileName,
-        ...manifest.files.map((file) => file.fileName),
-      ];
+      const file = await toFile(manifest.reportUrl, manifest.reportFileName);
 
-      // Files first, so a failure happens before any mail app is opened.
-      const files = [
-        await toFile(manifest.reportUrlFlat, manifest.reportFileName),
-        ...(await Promise.all(
-          manifest.files.map((file) => toFile(file.url, file.fileName)),
-        )),
-      ];
-
-      if (navigator.canShare?.({ files })) {
+      if (navigator.canShare?.({ files: [file] })) {
         await navigator.share({
-          files,
+          files: [file],
           title: t.share.subject(title),
-          text: t.share.body(title, names.map((name) => `• ${name}`).join("\n")),
+          text: t.share.body(title, [manifest.reportFileName]),
         });
         return;
       }
 
-      // No file sharing: give the user the files and an addressed draft.
-      download(manifest.reportUrlFlat, manifest.reportFileName);
-      for (const file of manifest.files) {
-        await new Promise((resolve) => setTimeout(resolve, 400));
-        download(file.url, file.fileName);
-      }
-      openDraft(title, names);
+      // No file sharing: download the PDF and open a mail draft
+      download(manifest.reportUrl, manifest.reportFileName);
+      openDraft(title, [manifest.reportFileName]);
       setMessage(t.share.fallback);
     } catch (caught) {
       // Dismissing the share sheet is a choice, not a failure.

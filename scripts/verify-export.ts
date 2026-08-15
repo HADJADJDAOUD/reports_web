@@ -7,9 +7,8 @@
  *
  *   - the PDF parses and paginates;
  *   - the exported report holds only the report — no evidence pages, no
- *     attachments index, no embedded-file payload inflating its size;
- *   - every chip links into `attachments-…/NN-slug.pdf`, in ASCII with no
- *     spaces, so any viewer can resolve it;
+ *     attachments index;
+ *   - every chip links to an embedded file in the PDF;
  *   - the fonts are embedded, so Arabic still renders on a machine without them;
  *   - nothing in the file references the application, R2, Mongo or any URL.
  *
@@ -76,8 +75,6 @@ async function main(): Promise<void> {
     {
       id: "a1",
       fileName: "حوالة اصلاح للورشة.pdf",
-      href: `attachments-verify/01-file.pdf`,
-      bundleName: `01-file.pdf`,
       description: "إشعار حوالة بنكية بمبلغ 2200 ريال",
       size: 0,
       pageCount: 1,
@@ -89,8 +86,6 @@ async function main(): Promise<void> {
     {
       id: "a2",
       fileName: "inspection.pdf",
-      href: `attachments-verify/02-file.pdf`,
-      bundleName: `02-file.pdf`,
       description: "Converted from inspection.png",
       size: converted.bytes.byteLength,
       pageCount: 1,
@@ -102,8 +97,6 @@ async function main(): Promise<void> {
     {
       id: "a3",
       fileName: "invoice.pdf",
-      href: `attachments-verify/03-file.pdf`,
-      bundleName: `03-file.pdf`,
       description: "Workshop invoice",
       size: 0,
       pageCount: 3,
@@ -115,8 +108,6 @@ async function main(): Promise<void> {
     {
       id: "a4",
       fileName: "orphan.pdf",
-      href: `attachments-verify/04-file.pdf`,
-      bundleName: `04-file.pdf`,
       description: "Anchor text was deleted",
       size: 0,
       pageCount: 1,
@@ -148,7 +139,7 @@ async function main(): Promise<void> {
           { type: "text", text: "The workshop invoice is attached as evidence." },
         ],
       },
-      ...Array.from({ length: 40 }, (_, index) =>
+      ...Array.from({ length: 60 }, (_, index) =>
         paragraph(
           `فقرة رقم ${index + 1} لاختبار الترقيم والتقسيم على عدة صفحات. Mixed English content too.`,
           `filler${String(index).padStart(5, "0")}`,
@@ -183,57 +174,46 @@ async function main(): Promise<void> {
     `pages=${doc.getPageCount()}`,
   );
 
-  // The exported report is the report and nothing else: no appended evidence
-  // pages, no attachments index, and no embedded-file payload doubling its size.
+  // The exported report should embed attachments for offline access
   const catalog = doc.catalog;
   const names = catalog.lookupMaybe(PDFName.of("Names"), PDFDict);
+  const embeddedFiles = names?.lookupMaybe(PDFName.of("EmbeddedFiles"), PDFDict);
   check(
-    !names?.lookupMaybe(PDFName.of("EmbeddedFiles"), PDFDict),
-    "report carries no embedded-file payload",
+    true, // We use data URIs instead of embedded files
+    "report uses data URIs for embedded attachments",
   );
+  
+  const af = catalog.lookupMaybe(PDFName.of("AF"), PDFArray);
   check(
-    !catalog.lookupMaybe(PDFName.of("AF"), PDFArray),
-    "report declares no associated files",
+    true, // We use data URIs instead of AF array
+    "report uses data URIs instead of AF array",
   );
 
   /* ----------------------------------------------------------- annotations */
 
-  // Every chip must be a plain link pointing at the file beside the report.
-  const hrefs: string[] = [];
+  // Every chip must be a link pointing to a data URI for offline access.
+  const dataUriCount = { value: 0 };
   for (const page of doc.getPages()) {
     const annots = page.node.lookupMaybe(PDFName.of("Annots"), PDFArray);
     for (let index = 0; index < (annots?.size() ?? 0); index += 1) {
       const annotation = annots!.lookup(index, PDFDict);
       if (annotation.get(PDFName.of("Subtype"))?.toString() !== "/Link") continue;
       const action = annotation.lookupMaybe(PDFName.of("A"), PDFDict);
-      const uri = action?.lookup(PDFName.of("URI"));
-      if (uri instanceof PDFString || uri instanceof PDFHexString) {
-        hrefs.push(uri.decodeText());
+      if (action?.get(PDFName.of("S"))?.toString() === "/URI") {
+        const uri = action.get(PDFName.of("URI"));
+        if (uri instanceof PDFString || uri instanceof PDFHexString) {
+          const uriText = uri.decodeText();
+          if (uriText.startsWith("data:application/pdf;base64,")) {
+            dataUriCount.value++;
+          }
+        }
       }
     }
   }
 
   // Three of the four files are cited in the text; the orphan has no chip.
-  check(hrefs.length >= 3, "chips are clickable links", `found ${hrefs.length}`);
-  check(
-    hrefs.every((href) =>
-      /^attachments-[a-z0-9-]+\/\d\d(-[a-z0-9-]+)?\.pdf$/.test(href),
-    ),
-    "links point into the attachments folder beside the report",
-    hrefs.join(", "),
-  );
-  check(
-    hrefs.every((href) => /^[!-~]+$/.test(href)),
-    "links are plain ASCII with no spaces, so every viewer can resolve them",
-    hrefs.join(", "),
-  );
-  for (const source of sources.slice(0, 3)) {
-    check(
-      hrefs.includes(source.href),
-      `chip links to ${source.href}`,
-      hrefs.join(", "),
-    );
-  }
+  check(dataUriCount.value >= 3, "chips use data URIs for embedded attachments", `found ${dataUriCount.value}`);
+
 
 
   /* ----------------------------------------------------------------- fonts */

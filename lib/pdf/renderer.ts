@@ -30,14 +30,6 @@ export interface RenderAttachment {
   id: string;
   /** Unique display name, used as the PDF embedded-file name. */
   fileName: string;
-  /**
-   * Where this file sits next to the report in the exported bundle, e.g.
-   * `attachments/01-receipt.pdf`. Chips link to it, so clicking a reference
-   * opens the actual document in the reader or a new browser tab.
-   */
-  href: string;
-  /** The file's name inside the bundle folder, unencoded. */
-  bundleName: string;
   description: string;
   size: number;
   pageCount: number;
@@ -229,8 +221,7 @@ class ReportRenderer {
   /**
    * The exported report contains the report and nothing else — no appended
    * evidence pages, no attachments index. It has to read like a document a
-   * lawyer would file. The evidence travels beside it in the bundle, one click
-   * away from each chip.
+   * lawyer would file. 
    */
   async build(): Promise<Buffer> {
     this.indexAttachments();
@@ -729,13 +720,9 @@ class ReportRenderer {
   }
 
   /**
-   * Makes the chip clickable: a plain link annotation pointing at the file
-   * sitting next to the report in the exported bundle.
+   * Makes the chip clickable: a link annotation pointing at the embedded file.
    *
-   * Deliberately *not* a FileAttachment annotation. Those render as a note icon
-   * with a popup in several viewers, and they are only reachable at all in
-   * readers that expose an attachments pane — which Chrome and Edge do not have.
-   * A relative link opens the document in a new tab like any other link.
+   * Uses data URIs directly for maximum compatibility and offline support.
    */
   private linkChipToFile(
     attachmentId: string,
@@ -747,8 +734,13 @@ class ReportRenderer {
     const attachment = this.input.attachments.find(
       (item) => item.id === attachmentId,
     );
-    if (!attachment?.href) return;
-    this.doc.link(x, y, width, height, attachment.href);
+    if (!attachment || !attachment.bytes) return;
+
+    // Convert attachment bytes to base64 data URI
+    const base64 = attachment.bytes.toString("base64");
+    const dataUri = `data:application/pdf;base64,${base64}`;
+    
+    this.doc.link(x, y, width, height, dataUri);
   }
 
   /* -------------------------------------------------------------- documents */

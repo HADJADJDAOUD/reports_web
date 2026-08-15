@@ -3,13 +3,7 @@ import { getDictionary, type Locale } from "@/lib/i18n/dictionaries";
 import { env } from "@/lib/env";
 import { getObjectBuffer } from "@/lib/storage/r2";
 import { renderReportPdf, type RenderAttachment } from "./renderer";
-import {
-  attachmentHref,
-  attachmentsDirName,
-  bundleFileName,
-  reportFileName,
-  type ExportLayout,
-} from "./bundle";
+import { reportFileName } from "./bundle";
 
 export interface ExportedReport {
   bytes: Buffer;
@@ -19,24 +13,18 @@ export interface ExportedReport {
 /**
  * Renders the report PDF.
  *
- * The evidence is never packed into this file. It is written next to it — inside
- * an attachments folder where the browser can create one, otherwise alongside it
- * — and each chip is a relative link to it. So the reader opens the report, clicks
- * a reference, and the document opens: no attachments pane, no special reader, no
- * archive to unpack, no network.
- *
- * `layout` therefore has to be settled before rendering, because it decides what
- * the links say. PROJECT.md §5a records the five delivery formats that were tried
- * and why this is the one that survived.
+ * The evidence is embedded directly into the PDF for offline access. Each chip
+ * links to its corresponding embedded file, so the reader can open the report,
+ * click a reference, and the document opens without any external dependencies.
  */
 export async function exportReportPdf(params: {
   report: ReportDoc;
   attachments: AttachmentDoc[];
   locale: Locale;
   authorName: string;
-  layout: ExportLayout;
+  layout: "folder" | "flat"; // Kept for API compatibility but not used
 }): Promise<ExportedReport> {
-  const { report, attachments, locale, authorName, layout } = params;
+  const { report, attachments, locale, authorName } = params;
 
   const loaded = await Promise.all(
     attachments.map(async (attachment) => ({
@@ -45,17 +33,14 @@ export async function exportReportPdf(params: {
     })),
   );
 
-  const dirName = attachmentsDirName(report.title, report._id!.toHexString());
   const usedNames = new Set<string>();
 
   const renderAttachments: RenderAttachment[] = loaded.map(
-    ({ attachment, bytes }, index) => {
+    ({ attachment, bytes }) => {
       const fileName = uniqueName(attachment.fileName, usedNames);
       return {
         id: attachment._id!.toHexString(),
         fileName,
-        href: attachmentHref(layout, dirName, index, fileName),
-        bundleName: bundleFileName(index, fileName),
         description: attachment.description,
         size: bytes.byteLength,
         pageCount: attachment.pageCount,

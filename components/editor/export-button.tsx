@@ -1,35 +1,23 @@
 "use client";
 
 import { useState } from "react";
-import { Download, FileDown, FolderDown, Loader2, X } from "lucide-react";
+import { Download, FileDown, Loader2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLocale } from "@/lib/i18n/client";
 
 interface ExportManifest {
   reportFileName: string;
-  reportUrlFolder: string;
-  reportUrlFlat: string;
-  attachmentsDir: string;
-  files: { fileName: string; displayName: string; url: string }[];
+  reportUrl: string;
+  files: never[]; // No separate files - attachments are embedded
 }
 
-type Result = "folder" | "flat" | "pdf";
+type Result = "pdf";
 
 /**
- * Saves the report and its evidence as
+ * Saves the report as a self-contained PDF.
  *
- *     تقرير.pdf
- *     attachments-…/01-receipt.pdf, 02.pdf, …
- *
- * The chips in the report are relative links into that folder, so the layout on
- * disk is what makes them work.
- *
- * Ordinary downloads cannot create a folder: every browser strips path separators
- * out of the `download` attribute, and Chromium has declined to change that. So
- * where the File System Access API exists (Chrome, Edge) the files are written
- * straight into a folder the user picks. Everywhere else they are downloaded side
- * by side instead, and the report is rendered with matching flat links — never a
- * ZIP, because nobody should have to unpack anything.
+ * Attachments are embedded directly in the PDF, so the exported file works
+ * completely offline without any external dependencies.
  */
 export function ExportButton({
   reportId,
@@ -42,60 +30,6 @@ export function ExportButton({
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
   const [error, setError] = useState<string | null>(null);
-
-  async function fetchBlob(url: string): Promise<Blob> {
-    const response = await fetch(url);
-    if (!response.ok) throw new Error(t.export.failed);
-    return response.blob();
-  }
-
-  function saveViaDownload(url: string, fileName: string): void {
-    const anchor = document.createElement("a");
-    anchor.href = url;
-    anchor.download = fileName;
-    anchor.rel = "noopener";
-    document.body.appendChild(anchor);
-    anchor.click();
-    anchor.remove();
-  }
-
-  async function writeFile(
-    directory: FileSystemDirectoryHandle,
-    fileName: string,
-    blob: Blob,
-  ): Promise<void> {
-    const handle = await directory.getFileHandle(fileName, { create: true });
-    const writable = await handle.createWritable();
-    await writable.write(blob);
-    await writable.close();
-  }
-
-  /** Returns false when the browser has no directory picker. */
-  async function saveIntoFolder(manifest: ExportManifest): Promise<boolean> {
-    if (typeof window.showDirectoryPicker !== "function") return false;
-
-    const root = await window.showDirectoryPicker({
-      mode: "readwrite",
-      id: "lexis-export",
-      startIn: "downloads",
-    });
-
-    await writeFile(
-      root,
-      manifest.reportFileName,
-      await fetchBlob(manifest.reportUrlFolder),
-    );
-
-    if (manifest.files.length > 0) {
-      const folder = await root.getDirectoryHandle(manifest.attachmentsDir, {
-        create: true,
-      });
-      for (const file of manifest.files) {
-        await writeFile(folder, file.fileName, await fetchBlob(file.url));
-      }
-    }
-    return true;
-  }
 
   async function run() {
     setBusy(true);
@@ -113,42 +47,24 @@ export function ExportButton({
       }
       const manifest = (await response.json()) as ExportManifest;
 
-      // A report with no evidence is just a PDF; there is no folder to make.
-      if (manifest.files.length === 0) {
-        saveViaDownload(manifest.reportUrlFlat, manifest.reportFileName);
-        setResult("pdf");
-        return;
-      }
+      // Download the single self-contained PDF
+      const anchor = document.createElement("a");
+      anchor.href = manifest.reportUrl;
+      anchor.download = manifest.reportFileName;
+      anchor.rel = "noopener";
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
 
-      if (await saveIntoFolder(manifest)) {
-        setResult("folder");
-        return;
-      }
-
-      // No directory access: download everything side by side. The report is
-      // fetched with flat links so they match where the files actually land.
-      saveViaDownload(manifest.reportUrlFlat, manifest.reportFileName);
-      for (const file of manifest.files) {
-        // Browsers drop downloads fired in the same tick, so they are spaced out.
-        await new Promise((resolve) => setTimeout(resolve, 400));
-        saveViaDownload(file.url, file.fileName);
-      }
-      setResult("flat");
+      setResult("pdf");
     } catch (caught) {
-      // Dismissing the folder picker is a choice, not a failure.
-      if (caught instanceof DOMException && caught.name === "AbortError") return;
       setError(caught instanceof Error ? caught.message : t.export.failed);
     } finally {
       setBusy(false);
     }
   }
 
-  const note =
-    result === "flat"
-      ? t.export.noteFlat
-      : result === "folder"
-        ? t.export.note
-        : null;
+  const note = result === "pdf" ? t.export.note : null;
 
   return (
     <div className="relative flex items-center gap-2">
@@ -169,13 +85,12 @@ export function ExportButton({
       </Button>
 
       {/*
-        The layout on disk is the one thing the reader must not break, so it is
-        stated once, right after the export.
+        The exported PDF is self-contained with embedded attachments.
       */}
       {note && !error && (
         <div className="animate-fade-in absolute end-0 top-full z-40 mt-2 w-80 rounded border border-line bg-paper p-3 shadow-[0_6px_20px_rgba(26,28,28,0.12)]">
           <div className="flex items-start gap-2">
-            <FolderDown
+            <Download
               className="mt-0.5 size-3.5 shrink-0 text-evidence"
               aria-hidden
             />

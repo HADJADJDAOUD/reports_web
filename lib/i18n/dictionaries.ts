@@ -146,8 +146,7 @@ const en = {
   export: {
     ready: "Your PDF is ready.",
     download: "Download",
-    note: "Saved the report and its attachments folder to the location you chose. Open the report from there and click any file reference to open that document. Keep the report and the folder together — moving the report on its own breaks the references.",
-    noteFlat: "Your browser cannot create a folder from a download, so the report and its files were saved side by side in your downloads folder. Open the report from there and click any file reference to open that document. Keep the files together.",
+    note: "The report and attachments are now in a single file. Open the report and click any file reference to open that document directly. Works offline without internet.",
     failed: "Export failed. Please try again.",
   },
   pdf: {
@@ -294,8 +293,7 @@ const ar: Dictionary = {
   export: {
     ready: "ملف PDF جاهز.",
     download: "تنزيل",
-    note: "تم حفظ التقرير ومجلد المرفقات في الموضع الذي اخترته. افتح التقرير من هناك، وانقر على أي مرجع ملف ليُفتح المستند المقابل. أبقِ التقرير ومجلد المرفقات معاً — فنقل التقرير بمفرده يُعطّل المراجع.",
-    noteFlat: "متصفحك لا يستطيع إنشاء مجلد من التنزيل، لذا حُفظ التقرير وملفاته جنباً إلى جنب في مجلد التنزيلات. افتح التقرير من هناك، وانقر على أي مرجع ملف ليُفتح المستند المقابل. أبقِ الملفات معاً.",
+    note: "التقرير والمرفقات الآن في ملف واحد. افتح التقرير وانقر على أي مرجع ملف ليُفتح المستند المقابل مباشرة. يعمل دون اتصال بالإنترنت.",
     failed: "فشل التصدير. حاول مرة أخرى.",
   },
   pdf: {
