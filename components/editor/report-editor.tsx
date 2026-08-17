@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import {
   EditorContent,
   useEditor,
@@ -15,6 +14,7 @@ import { Placeholder } from "@tiptap/extensions";
 import { Paperclip } from "lucide-react";
 import { Toolbar } from "./toolbar";
 import { AttachDialog } from "./attach-dialog";
+import { AttachmentPreview } from "./attachment-preview";
 import { EvidenceRail } from "./evidence-list";
 import { SaveStateBadge, type SaveState } from "./save-state";
 import { ExportButton } from "./export-button";
@@ -51,15 +51,15 @@ export function ReportEditor({
   uploadMaxBytes: number;
 }) {
   const { t } = useLocale();
-  const router = useRouter();
 
-  const [title] = useState(report.title);
-  const [subtitle] = useState(report.subtitle);
+  const [title, setTitle] = useState(report.title);
+  const [subtitle, setSubtitle] = useState(report.subtitle);
   const [direction, setDirection] = useState(report.direction);
   const [attachments, setAttachments] = useState(initialAttachments);
   const [saveState, setSaveState] = useState<SaveState>("saved");
 
   const [intent, setIntent] = useState<AttachIntent | null>(null);
+  const [previewId, setPreviewId] = useState<string | null>(null);
   /** Bumped on scroll and resize to re-measure the floating action's position. */
   const [viewportTick, setViewportTick] = useState(0);
   const [dialogTarget, setDialogTarget] = useState<
@@ -331,8 +331,9 @@ export function ReportEditor({
       if (trigger.dataset.chipAction === "remove") {
         void removeAttachment(attachmentId);
       } else {
-        // Navigate to the application-level attachment viewer
-        router.push(`/attachments/${attachmentId}`);
+        // Opened in place: navigating away from a draft to read a reference
+        // would interrupt the writing, which is the whole point of the modal.
+        setPreviewId(attachmentId);
       }
     };
 
@@ -358,6 +359,8 @@ export function ReportEditor({
    * action could immediately close it again.
    */
   const clearIntent = useCallback(() => setIntent(null), []);
+
+  const previewAttachment = attachments.find((item) => item.id === previewId);
 
   /* ------------------------------------------------------------------- view */
 
@@ -401,7 +404,7 @@ export function ReportEditor({
             <EvidenceRail
               attachments={attachments}
               knownBlockIds={knownBlockIds}
-              onOpen={(id) => router.push(`/attachments/${id}`)}
+              onOpen={(id) => setPreviewId(id)}
               onRemove={(id) => void removeAttachment(id)}
               onReplace={(id) =>
                 setDialogTarget({ kind: "replace", attachmentId: id })
@@ -415,6 +418,30 @@ export function ReportEditor({
           className="doc-surface rounded border border-line bg-paper px-6 py-10 shadow-[0_1px_2px_rgba(26,28,28,0.04)] sm:px-12 sm:py-14"
           dir={direction}
         >
+          <input
+            value={title}
+            onChange={(event) => {
+              setTitle(event.target.value);
+              scheduleSave();
+            }}
+            placeholder={t.editor.titlePlaceholder}
+            maxLength={300}
+            aria-label={t.editor.titlePlaceholder}
+            className="w-full border-0 bg-transparent text-[1.75rem] font-bold leading-tight outline-none placeholder:text-ink-faint/60"
+            style={{ fontFamily: "var(--font-doc)" }}
+          />
+          <input
+            value={subtitle}
+            onChange={(event) => {
+              setSubtitle(event.target.value);
+              scheduleSave();
+            }}
+            placeholder={t.editor.subtitlePlaceholder}
+            maxLength={300}
+            aria-label={t.editor.subtitlePlaceholder}
+            className="font-ui mt-1 w-full border-0 bg-transparent text-sm text-ink-soft outline-none placeholder:text-ink-faint/60"
+          />
+          <hr className="my-6 border-line" />
           <EditorContent editor={editor} />
         </article>
 
@@ -476,6 +503,14 @@ export function ReportEditor({
             setDialogTarget(null);
             clearIntent();
           }}
+        />
+      )}
+
+      {previewAttachment && (
+        <AttachmentPreview
+          reportId={report.id}
+          attachment={previewAttachment}
+          onClose={() => setPreviewId(null)}
         />
       )}
     </>

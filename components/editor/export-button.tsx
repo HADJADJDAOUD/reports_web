@@ -4,11 +4,13 @@ import { useState } from "react";
 import { Download, FileDown, Loader2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLocale } from "@/lib/i18n/client";
+import { needsAnnexExport } from "@/lib/is-mobile";
 
 interface ExportManifest {
   reportFileName: string;
   reportUrl: string;
-  files: never[]; // No separate files - attachments are embedded
+  reportUrlAnnex: string;
+  files: { fileName: string; displayName: string; url: string }[];
 }
 
 type Result = "pdf";
@@ -47,14 +49,33 @@ export function ExportButton({
       }
       const manifest = (await response.json()) as ExportManifest;
 
-      // Download the single self-contained PDF
-      const anchor = document.createElement("a");
-      anchor.href = manifest.reportUrl;
-      anchor.download = manifest.reportFileName;
-      anchor.rel = "noopener";
-      document.body.appendChild(anchor);
-      anchor.click();
-      anchor.remove();
+      const save = (url: string, fileName: string) => {
+        const anchor = document.createElement("a");
+        anchor.href = url;
+        anchor.download = fileName;
+        anchor.rel = "noopener";
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+      };
+
+      if (needsAnnexExport()) {
+        /*
+         * Phones get one self-contained file: the evidence is folded in as pages
+         * and each chip jumps to them, so a tap works with no connection and no
+         * second file to keep track of.
+         */
+        save(manifest.reportUrlAnnex, manifest.reportFileName);
+      } else {
+        // Computers get the clean report, whose chips link to the app, plus the
+        // files themselves for offline reading.
+        save(manifest.reportUrl, manifest.reportFileName);
+        for (const file of manifest.files) {
+          // Browsers drop downloads fired in the same tick.
+          await new Promise((resolve) => setTimeout(resolve, 400));
+          save(file.url, file.fileName);
+        }
+      }
 
       setResult("pdf");
     } catch (caught) {

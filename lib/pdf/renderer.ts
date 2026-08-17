@@ -28,12 +28,22 @@ import type { Dictionary } from "@/lib/i18n/dictionaries";
 
 export interface RenderAttachment {
   id: string;
-  /** Unique display name, used as the PDF embedded-file name. */
+  /** Unique display name shown on the chip. */
   fileName: string;
+  /**
+   * Absolute URL of this attachment's viewer, e.g.
+   * `https://app.example.com/attachments/<id>`.
+   *
+   * An absolute web link is the only target a PDF chip can have that a phone can
+   * follow: tapping it hands off to the browser. Relative file paths cannot work
+   * (mobile viewers get a sandboxed `content://` handle with no sibling folder),
+   * embedded files need an attachments pane that Chrome and Edge do not have, and
+   * `data:` URIs are blocked from top-level navigation by every browser.
+   */
+  href: string;
   description: string;
   size: number;
   pageCount: number;
-  bytes: Buffer;
   blockIds: string[];
   convertedFromImage: boolean;
   originalFileName: string;
@@ -45,6 +55,19 @@ interface TreeNode {
   content?: TreeNode[];
   text?: string;
   marks?: { type: string; attrs?: Record<string, unknown> }[];
+}
+
+/** A chip's position, so the merge step can turn it into an internal jump. */
+export interface ChipLink {
+  attachmentId: string;
+  pageIndex: number;
+  rect: [number, number, number, number];
+}
+
+export interface RenderedReport {
+  bytes: Buffer;
+  /** Populated in annex mode only. */
+  chipLinks: ChipLink[];
 }
 
 export interface RenderInput {
@@ -59,6 +82,17 @@ export interface RenderInput {
   generatedAt: Date;
   footerText: string;
   pageSize: "A4" | "LETTER";
+  /**
+   * Annex mode, used for phones. The chip becomes an internal jump instead of a
+   * web link, and the merge step appends each attachment's own pages after the
+   * report — no cover pages, no list, no added section: the report reads exactly
+   * as it does otherwise, with the evidence sitting behind it like exhibits behind
+   * a pleading.
+   *
+   * Mobile PDF viewers cannot reach a sibling file or an embedded attachment, so
+   * pages inside the same file are the only thing a tap can resolve offline.
+   */
+  annex?: boolean;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -176,6 +210,7 @@ class ReportRenderer {
   private readonly rtl: boolean;
   private readonly t: Dictionary;
   private readonly chipsByBlock = new Map<string, RenderAttachment[]>();
+  private readonly chipLinks: ChipLink[] = [];
   private pageCount = 0;
   private readonly input: RenderInput;
 
@@ -223,7 +258,7 @@ class ReportRenderer {
    * evidence pages, no attachments index. It has to read like a document a
    * lawyer would file. 
    */
-  async build(): Promise<Buffer> {
+  async build(): Promise<RenderedReport> {
     this.indexAttachments();
 
     this.addPage();
@@ -235,7 +270,10 @@ class ReportRenderer {
 
     this.drawPageFurniture();
 
-    return this.finish();
+    return {
+      bytes: await this.finish(),
+      chipLinks: this.chipLinks,
+    };
   }
 
   private finish(): Promise<Buffer> {
@@ -720,9 +758,9 @@ class ReportRenderer {
   }
 
   /**
-   * Makes the chip clickable: a link annotation pointing at the embedded file.
-   *
-   * Uses data URIs directly for maximum compatibility and offline support.
+   * Makes the chip clickable: a link annotation pointing at the attachment's
+   * viewer in the application. See `RenderAttachment.href` for why this is a web
+   * URL and not a file path, an embedded file, or a data URI.
    */
   private linkChipToFile(
     attachmentId: string,
@@ -734,13 +772,20 @@ class ReportRenderer {
     const attachment = this.input.attachments.find(
       (item) => item.id === attachmentId,
     );
-    if (!attachment || !attachment.bytes) return;
+    if (!attachment) return;
 
-    // Convert attachment bytes to base64 data URI
-    const base64 = attachment.bytes.toString("base64");
-    const dataUri = `data:application/pdf;base64,${base64}`;
-    
-    this.doc.link(x, y, width, height, dataUri);
+    if (this.input.annex) {
+      // Recorded now, wired to the attachment's page once those pages exist.
+      this.chipLinks.push({
+        attachmentId,
+        pageIndex: Math.max(0, this.pageCount - 1),
+        // PDF rectangles are measured from the bottom of the page.
+        rect: [x, this.page.height - (y + height), x + width, this.page.height - y],
+      });
+      return;
+    }
+
+    if (attachment.href) this.doc.link(x, y, width, height, attachment.href);
   }
 
   /* -------------------------------------------------------------- documents */
@@ -1424,6 +1469,8 @@ function toArabicDigits(value: number): string {
 
 /* -------------------------------------------------------------------------- */
 
-export async function renderReportPdf(input: RenderInput): Promise<Buffer> {
+export async function renderReportPdf(
+  input: RenderInput,
+): Promise<RenderedReport> {
   return new ReportRenderer(input).build();
 }

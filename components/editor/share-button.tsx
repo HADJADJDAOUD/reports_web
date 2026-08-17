@@ -8,13 +8,22 @@ import { useLocale } from "@/lib/i18n/client";
 interface ShareManifest {
   reportFileName: string;
   reportUrl: string;
-  files: never[]; // No separate files - attachments are embedded
+  reportUrlAnnex: string;
+  files: { fileName: string; displayName: string; url: string }[];
 }
 
 /**
- * Hands the report PDF to the device's share sheet.
+ * Hands the report to the device's share sheet, so the user picks their mail app
+ * and one message carries everything.
  *
- * Since attachments are now embedded in the PDF, only a single file needs to be shared.
+ * What is sent is the *annex* build: the evidence is inside the file, so the
+ * recipient taps a reference and the document opens — on any device, offline, with
+ * nothing else to keep alongside it.
+ *
+ * `mailto:` cannot carry attachments — that parameter is not standard and every
+ * mail client ignores it — so the Web Share API is the only way a web page can put
+ * real files into an email. Where it is unavailable (desktop Firefox and Safari)
+ * the files are downloaded and an empty draft is opened to attach them to.
  */
 export function ShareButton({
   reportId,
@@ -66,20 +75,33 @@ export function ShareButton({
       const manifest = (await response.json()) as ShareManifest;
 
       const title = reportTitle.trim() || manifest.reportFileName;
-      const file = await toFile(manifest.reportUrl, manifest.reportFileName);
+      const names = [manifest.reportFileName];
 
-      if (navigator.canShare?.({ files: [file] })) {
+      /*
+       * Email always sends the annex build: one self-contained file whose
+       * references work by tapping, on any device, with no connection. A recipient
+       * cannot be assumed to be at a computer, and separate attachments would lose
+       * their relationship the moment they were saved somewhere else.
+       *
+       * Fetched before any mail app opens, so a failure cannot leave a half-built
+       * draft behind.
+       */
+      const files = [
+        await toFile(manifest.reportUrlAnnex, manifest.reportFileName),
+      ];
+
+      if (navigator.canShare?.({ files })) {
         await navigator.share({
-          files: [file],
+          files,
           title: t.share.subject(title),
-          text: t.share.body(title, [manifest.reportFileName]),
+          text: t.share.body(title, names.map((name) => `• ${name}`).join("\n")),
         });
         return;
       }
 
-      // No file sharing: download the PDF and open a mail draft
-      download(manifest.reportUrl, manifest.reportFileName);
-      openDraft(title, [manifest.reportFileName]);
+      // No file sharing: hand over the same single file and an addressed draft.
+      download(manifest.reportUrlAnnex, manifest.reportFileName);
+      openDraft(title, names);
       setMessage(t.share.fallback);
     } catch (caught) {
       // Dismissing the share sheet is a choice, not a failure.

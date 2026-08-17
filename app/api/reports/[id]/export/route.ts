@@ -8,6 +8,28 @@ import { loadOwnedReport, loadReportAttachments } from "@/lib/reports/service";
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
+/**
+ * The public origin to write into the exported PDF's links.
+ *
+ * Behind Vercel's proxy the request URL is the internal one, so the forwarded
+ * headers are the reliable source. `NEXT_PUBLIC_APP_URL` overrides both when the
+ * app sits behind a custom domain that the headers do not reflect.
+ */
+function deploymentOrigin(request: Request): string {
+  const configured = process.env.NEXT_PUBLIC_APP_URL?.trim();
+  if (configured) return configured;
+
+  const host =
+    request.headers.get("x-forwarded-host") ?? request.headers.get("host");
+  if (host) {
+    const proto =
+      request.headers.get("x-forwarded-proto") ??
+      (host.startsWith("localhost") ? "http" : "https");
+    return `${proto}://${host}`;
+  }
+  return new URL(request.url).origin;
+}
+
 export async function GET(
   request: Request,
   context: { params: Promise<{ id: string }> },
@@ -29,9 +51,6 @@ export async function GET(
     const report = await loadOwnedReport(reportId, ownerId);
     const attachments = await loadReportAttachments(reportId, ownerId);
 
-    // The layout decides what the chips link to, so the client states which one
-    // it is about to write: a folder where the browser can create one, otherwise
-    // files side by side.
     const exported = await exportReportPdf({
       report,
       attachments,
@@ -39,10 +58,12 @@ export async function GET(
       // Arabic report reads as one throughout.
       locale: report.direction === "rtl" ? "ar" : "en",
       authorName: session.name || session.email,
-      layout:
-        new URL(request.url).searchParams.get("layout") === "flat"
-          ? "flat"
-          : "folder",
+      baseUrl: deploymentOrigin(request),
+      // The client knows its device; a phone needs the annex export.
+      mode:
+        new URL(request.url).searchParams.get("mode") === "annex"
+          ? "annex"
+          : "link",
     });
 
     return new NextResponse(new Uint8Array(exported.bytes), {

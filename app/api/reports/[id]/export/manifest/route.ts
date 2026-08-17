@@ -1,12 +1,17 @@
 import { handle, requireUser, toObjectId } from "@/lib/api";
-import { reportFileName } from "@/lib/pdf/bundle";
+import { bundleFileName, reportFileName } from "@/lib/pdf/bundle";
 import { loadOwnedReport, loadReportAttachments } from "@/lib/reports/service";
 
 /**
- * Returns the report PDF download information.
- * 
- * Attachments are now embedded directly in the PDF, so no separate file downloads are needed.
- * The exported PDF is self-contained and works offline.
+ * What a download or an email should contain: the report, plus every attachment
+ * as its own file.
+ *
+ * The chips inside the PDF link to the attachment viewer in the app, which is
+ * what makes them work on a phone. These files are the *offline* half of the
+ * story — real PDFs the reader keeps, and the attachments an email carries.
+ *
+ * Attachments are addressed by id, so the URLs here never encode a storage
+ * location.
  */
 export async function GET(
   _request: Request,
@@ -16,15 +21,19 @@ export async function GET(
     const user = await requireUser();
     const reportId = toObjectId((await context.params).id, "report id");
     const report = await loadOwnedReport(reportId, user.objectId);
+    const attachments = await loadReportAttachments(reportId, user.objectId);
 
     const locale = report.direction === "rtl" ? "ar" : "en";
-    const id = reportId.toHexString();
 
     return {
       reportFileName: reportFileName(report.title, locale),
-      reportUrl: `/api/reports/${id}/export`,
-      // No separate files needed - attachments are embedded in the PDF
-      files: [],
+      reportUrlAnnex: `/api/reports/${reportId.toHexString()}/export?mode=annex`,
+      reportUrl: `/api/reports/${reportId.toHexString()}/export`,
+      files: attachments.map((attachment, index) => ({
+        fileName: bundleFileName(index, attachment.fileName),
+        displayName: attachment.fileName,
+        url: `/api/attachments/${attachment._id!.toHexString()}/file?download=1`,
+      })),
     };
   });
 }

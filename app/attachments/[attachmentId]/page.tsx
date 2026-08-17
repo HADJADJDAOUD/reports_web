@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Download, X, RefreshCw, AlertCircle } from "lucide-react";
 import { attachmentCache } from "@/lib/attachments/cache";
 import { useLocale } from "@/lib/i18n/client";
@@ -20,6 +20,12 @@ export default function AttachmentViewerPage() {
   const router = useRouter();
   const { t } = useLocale();
   const attachmentId = params.attachmentId as string;
+  /*
+   * A reference inside an exported report carries a signed token, because the
+   * reader is usually not the author and has no session here.
+   */
+  const shareToken = useSearchParams().get("t");
+  const auth = shareToken ? `?t=${encodeURIComponent(shareToken)}` : "";
 
   const [attachment, setAttachment] = useState<AttachmentData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -71,7 +77,7 @@ export default function AttachmentViewerPage() {
 
   async function fetchAttachmentMetadata(): Promise<void> {
     try {
-      const response = await fetch(`/api/attachments/${attachmentId}`);
+      const response = await fetch(`/api/attachments/${attachmentId}${auth}`);
       if (!response.ok) throw new Error("Attachment not found");
       
       const data = await response.json();
@@ -90,7 +96,7 @@ export default function AttachmentViewerPage() {
     await fetchAttachmentMetadata();
 
     // Fetch PDF and cache it
-    const fileUrl = `/api/attachments/${attachmentId}/file`;
+    const fileUrl = `/api/attachments/${attachmentId}/file${auth}`;
     const response = await fetch(fileUrl);
     if (!response.ok) throw new Error("Failed to fetch attachment file");
 

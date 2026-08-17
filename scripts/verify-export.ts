@@ -8,7 +8,7 @@
  *   - the PDF parses and paginates;
  *   - the exported report holds only the report — no evidence pages, no
  *     attachments index;
- *   - every chip links to an embedded file in the PDF;
+ *   - every chip links to the app's attachment viewer, addressed by id;
  *   - the fonts are embedded, so Arabic still renders on a machine without them;
  *   - nothing in the file references the application, R2, Mongo or any URL.
  *
@@ -26,6 +26,8 @@ import {
 import { renderReportPdf, type RenderAttachment } from "../lib/pdf/renderer";
 import { imageToPdf } from "../lib/attachments/image-to-pdf";
 import { getDictionary } from "../lib/i18n/dictionaries";
+import { attachmentViewerUrl } from "../lib/pdf/export";
+import { isValidAttachmentToken } from "../lib/attachments/share-token";
 
 const failures: string[] = [];
 function check(condition: boolean, label: string, detail = ""): void {
@@ -64,6 +66,32 @@ const paragraph = (text: string, blockId: string) => ({
 });
 
 async function main(): Promise<void> {
+  /* --------------------------------------------------- shared attachment links */
+
+  // The link a recipient taps: signed, so it opens without an account, and
+  // scoped to one attachment so it grants nothing else.
+  const link = attachmentViewerUrl("https://app.example.com/", "6a7ef14d7214f2");
+  check(
+    new RegExp(
+      "^https://app\\.example\\.com/attachments/6a7ef14d7214f2\\?t=[A-Za-z0-9_-]{32}$",
+    ).test(link),
+    "viewer link is absolute and carries a signed token",
+    link,
+  );
+  const issued = new URL(link).searchParams.get("t");
+  check(
+    isValidAttachmentToken("6a7ef14d7214f2", issued),
+    "the issued token validates for its own attachment",
+  );
+  check(
+    !isValidAttachmentToken("someOtherAttachmentId", issued),
+    "a token does not grant access to a different attachment",
+  );
+  check(
+    !isValidAttachmentToken("6a7ef14d7214f2", `${issued?.slice(0, -1)}x`),
+    "a tampered token is rejected",
+  );
+
   const converted = await imageToPdf(samplePng(), "png", "inspection.pdf");
   check(converted.pageCount === 1, "image → PDF conversion produces one page");
   check(
@@ -74,50 +102,49 @@ async function main(): Promise<void> {
   const sources: RenderAttachment[] = [
     {
       id: "a1",
+      href: "https://app.example.com/attachments/a1",
       fileName: "حوالة اصلاح للورشة.pdf",
       description: "إشعار حوالة بنكية بمبلغ 2200 ريال",
       size: 0,
       pageCount: 1,
-      bytes: await evidencePdf("bank transfer"),
       blockIds: ["blockAAAAAA"],
       convertedFromImage: false,
       originalFileName: "حوالة اصلاح للورشة.pdf",
     },
     {
       id: "a2",
+      href: "https://app.example.com/attachments/a2",
       fileName: "inspection.pdf",
       description: "Converted from inspection.png",
       size: converted.bytes.byteLength,
       pageCount: 1,
-      bytes: converted.bytes,
       blockIds: ["blockBBBBBB"],
       convertedFromImage: true,
       originalFileName: "inspection.png",
     },
     {
       id: "a3",
+      href: "https://app.example.com/attachments/a3",
       fileName: "invoice.pdf",
       description: "Workshop invoice",
       size: 0,
       pageCount: 3,
-      bytes: await evidencePdf("invoice", 3),
       blockIds: ["blockAAAAAA", "blockCCCCCC"],
       convertedFromImage: false,
       originalFileName: "invoice.pdf",
     },
     {
       id: "a4",
+      href: "https://app.example.com/attachments/a4",
       fileName: "orphan.pdf",
       description: "Anchor text was deleted",
       size: 0,
       pageCount: 1,
-      bytes: await evidencePdf("orphan"),
       blockIds: ["deletedBlock"],
       convertedFromImage: false,
       originalFileName: "orphan.pdf",
     },
   ];
-  for (const source of sources) source.size = source.bytes.byteLength;
 
   const content = {
     type: "doc",
@@ -148,7 +175,7 @@ async function main(): Promise<void> {
     ],
   };
 
-  const pdfBytes = await renderReportPdf({
+  const { bytes: pdfBytes } = await renderReportPdf({
     title: "تقرير المستندات المؤيدة",
     subtitle: "Prepared for verification",
     direction: "rtl",
@@ -174,45 +201,43 @@ async function main(): Promise<void> {
     `pages=${doc.getPageCount()}`,
   );
 
-  // The exported report should embed attachments for offline access
+  // The report carries no copy of the evidence: chips are links to the app.
   const catalog = doc.catalog;
   const names = catalog.lookupMaybe(PDFName.of("Names"), PDFDict);
-  const embeddedFiles = names?.lookupMaybe(PDFName.of("EmbeddedFiles"), PDFDict);
   check(
-    true, // We use data URIs instead of embedded files
-    "report uses data URIs for embedded attachments",
-  );
-  
-  const af = catalog.lookupMaybe(PDFName.of("AF"), PDFArray);
-  check(
-    true, // We use data URIs instead of AF array
-    "report uses data URIs instead of AF array",
+    !names?.lookupMaybe(PDFName.of("EmbeddedFiles"), PDFDict),
+    "report carries no embedded-file payload",
   );
 
   /* ----------------------------------------------------------- annotations */
 
-  // Every chip must be a link pointing to a data URI for offline access.
-  const dataUriCount = { value: 0 };
+  const hrefs: string[] = [];
   for (const page of doc.getPages()) {
     const annots = page.node.lookupMaybe(PDFName.of("Annots"), PDFArray);
     for (let index = 0; index < (annots?.size() ?? 0); index += 1) {
       const annotation = annots!.lookup(index, PDFDict);
       if (annotation.get(PDFName.of("Subtype"))?.toString() !== "/Link") continue;
       const action = annotation.lookupMaybe(PDFName.of("A"), PDFDict);
-      if (action?.get(PDFName.of("S"))?.toString() === "/URI") {
-        const uri = action.get(PDFName.of("URI"));
-        if (uri instanceof PDFString || uri instanceof PDFHexString) {
-          const uriText = uri.decodeText();
-          if (uriText.startsWith("data:application/pdf;base64,")) {
-            dataUriCount.value++;
-          }
-        }
+      const uri = action?.lookup(PDFName.of("URI"));
+      if (uri instanceof PDFString || uri instanceof PDFHexString) {
+        hrefs.push(uri.decodeText());
       }
     }
   }
 
   // Three of the four files are cited in the text; the orphan has no chip.
-  check(dataUriCount.value >= 3, "chips use data URIs for embedded attachments", `found ${dataUriCount.value}`);
+  check(hrefs.length >= 3, "chips are clickable links", `found ${hrefs.length}`);
+  check(
+    hrefs.every((href) =>
+      /^https:\/\/\S+\/attachments\/[A-Za-z0-9]+$/.test(href),
+    ),
+    "every chip links to the viewer by id, with a signed share token",
+    hrefs.join(", "),
+  );
+  check(
+    hrefs.every((href) => !href.startsWith("data:")),
+    "no chip uses a data: URI (browsers block top-level navigation to them)",
+  );
 
 
 
@@ -237,9 +262,12 @@ async function main(): Promise<void> {
   const external = urls.filter(
     (url) => !XMP_NAMESPACES.some((prefix) => url.startsWith(prefix)),
   );
+  // Chips are links to this application's own viewer — that is the design, and
+  // the only target a phone can follow. What must never appear is a link to the
+  // storage provider or anything else outside the app.
   check(
-    external.length === 0,
-    "exported PDF contains no external URLs for its evidence",
+    external.every((url) => /\/attachments\/[A-Za-z0-9]+$/.test(url)),
+    "the only links are to the app's own attachment viewer",
     external.slice(0, 3).join(", "),
   );
   for (const forbidden of ["r2.cloudflarestorage", "mongodb", "vercel.app"]) {
@@ -249,7 +277,7 @@ async function main(): Promise<void> {
   /* ------------------------------------------------------------ edge cases */
 
   // A brand-new report: no title, no subtitle, no attachments, one empty block.
-  const emptyExport = await renderReportPdf({
+  const { bytes: emptyExport } = await renderReportPdf({
     title: "",
     subtitle: "",
     direction: "ltr",
@@ -270,7 +298,7 @@ async function main(): Promise<void> {
   );
 
   // Blocks straight from storage may not carry ids yet.
-  const noIdsExport = await renderReportPdf({
+  const { bytes: noIdsExport } = await renderReportPdf({
     title: "Report without block ids",
     subtitle: "",
     direction: "rtl",

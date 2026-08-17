@@ -35,6 +35,18 @@ export async function loadOwnedAttachment(
   return attachment;
 }
 
+/**
+ * Loads an attachment by id alone. Only for callers that have already proved
+ * access another way — today that means a valid share token.
+ */
+export async function loadAttachmentById(
+  attachmentId: ObjectId,
+): Promise<AttachmentDoc> {
+  const attachment = await (await attachments()).findOne({ _id: attachmentId });
+  if (!attachment) throw notFound("Attachment not found");
+  return attachment;
+}
+
 export async function loadReportAttachments(
   reportId: ObjectId,
   ownerId: ObjectId,
