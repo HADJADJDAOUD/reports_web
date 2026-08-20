@@ -119,6 +119,8 @@ const en = {
     invalidType: "Only PDF, JPG and PNG files are supported.",
     tooLarge: "File is larger than {max} MB.",
     failed: "Upload failed. Please try again.",
+    name: "Attachment name",
+    defaultName: (index: number) => "Attachment " + index,
     listTitle: "Evidence in this report",
     listEmpty: "Nothing attached yet.",
     unlinked: "Text removed — evidence kept",
@@ -153,6 +155,7 @@ const en = {
     page: "Page",
     of: "of",
     generated: "Generated",
+    attachmentsTitle: "Attachments",
   },
 };
 
@@ -267,6 +270,8 @@ const ar: Dictionary = {
     invalidType: "الملفات المدعومة هي PDF و JPG و PNG فقط.",
     tooLarge: "حجم الملف يتجاوز {max} ميغابايت.",
     failed: "فشل الرفع. حاول مرة أخرى.",
+    name: "اسم المرفق",
+    defaultName: (index: number) => "مرفق " + index,
     listTitle: "المستندات المرفقة بهذا التقرير",
     listEmpty: "لا توجد مرفقات بعد.",
     unlinked: "حُذف النص — والمرفق محفوظ",
@@ -300,6 +305,7 @@ const ar: Dictionary = {
     page: "صفحة",
     of: "من",
     generated: "تاريخ الإصدار",
+    attachmentsTitle: "المرفقات",
   },
 };
 

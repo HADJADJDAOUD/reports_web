@@ -489,6 +489,7 @@ export function ReportEditor({
           reportId={report.id}
           target={dialogTarget}
           maxBytes={uploadMaxBytes}
+          nextIndex={attachments.length + 1}
           onClose={() => {
             setDialogTarget(null);
             clearIntent();

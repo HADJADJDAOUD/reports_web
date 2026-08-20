@@ -4,7 +4,6 @@ import { useState } from "react";
 import { Download, FileDown, Loader2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLocale } from "@/lib/i18n/client";
-import { needsAnnexExport } from "@/lib/is-mobile";
 
 interface ExportManifest {
   reportFileName: string;
@@ -59,23 +58,13 @@ export function ExportButton({
         anchor.remove();
       };
 
-      if (needsAnnexExport()) {
-        /*
-         * Phones get one self-contained file: the evidence is folded in as pages
-         * and each chip jumps to them, so a tap works with no connection and no
-         * second file to keep track of.
-         */
-        save(manifest.reportUrlAnnex, manifest.reportFileName);
-      } else {
-        // Computers get the clean report, whose chips link to the app, plus the
-        // files themselves for offline reading.
-        save(manifest.reportUrl, manifest.reportFileName);
-        for (const file of manifest.files) {
-          // Browsers drop downloads fired in the same tick.
-          await new Promise((resolve) => setTimeout(resolve, 400));
-          save(file.url, file.fileName);
-        }
-      }
+      /*
+       * One self-contained file on every device. The evidence sits behind the
+       * report and each reference jumps to it, so a click works with no
+       * connection — on a laptop as much as on a phone — and there is a single
+       * file to keep, send or file away.
+       */
+      save(manifest.reportUrlAnnex, manifest.reportFileName);
 
       setResult("pdf");
     } catch (caught) {

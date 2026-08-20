@@ -268,6 +268,9 @@ class ReportRenderer {
     const blocks = Array.isArray(root?.content) ? root.content : [];
     for (const block of blocks) this.drawFlowNode(block, 0, this.input.direction);
 
+    if (this.input.annex && this.input.attachments.length > 0) {
+      this.drawAttachmentsDivider();
+    }
     this.drawPageFurniture();
 
     return {
@@ -1324,6 +1327,25 @@ class ReportRenderer {
         onContinuation?.();
       }
     }
+  }
+
+  /**
+   * A single page carrying one word, separating the report from the evidence
+   * that follows. The report itself ends before it, so nothing is appended to
+   * the document proper — the divider reads as the start of the exhibits.
+   */
+  private drawAttachmentsDivider(): void {
+    this.addPage();
+    this.y = this.page.height / 2 - 30;
+    this.drawParagraph(
+      [{ text: this.t.pdf.attachmentsTitle, style: PLAIN_STYLE }],
+      {
+        fontSize: 20,
+        bold: true,
+        direction: this.input.direction,
+        align: "center",
+      },
+    );
   }
 
   /* -------------------------------------------------------------- furniture */

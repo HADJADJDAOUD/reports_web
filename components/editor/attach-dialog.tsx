@@ -18,6 +18,8 @@ export interface AttachDialogProps {
   /** Block the evidence will be linked to, or the attachment being replaced. */
   target: { kind: "block"; blockId: string } | { kind: "replace"; attachmentId: string };
   maxBytes: number;
+  /** Position this attachment will take, for the suggested name. */
+  nextIndex: number;
   onClose: () => void;
   onDone: (attachment: AttachmentDto) => void;
 }
@@ -30,12 +32,16 @@ export function AttachDialog({
   reportId,
   target,
   maxBytes,
+  nextIndex,
   onClose,
   onDone,
 }: AttachDialogProps) {
   const { t } = useLocale();
   const [file, setFile] = useState<File | null>(null);
   const [description, setDescription] = useState("");
+  /* Pre-filled with the next number, so accepting the suggestion is one less
+   * decision and the naming stays consistent across a report. */
+  const [name, setName] = useState(() => t.attach.defaultName(nextIndex));
   const [phase, setPhase] = useState<Phase>("idle");
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -113,6 +119,7 @@ export function AttachDialog({
               fileName: file.name,
               mimeType: file.type,
               blockIds: [target.blockId],
+              displayName: name.trim(),
               description: description.trim(),
             }
           : { storageKey, fileName: file.name, mimeType: file.type };
@@ -213,6 +220,26 @@ export function AttachDialog({
             </>
           )}
         </label>
+
+        {target.kind === "block" && (
+          <div className="mt-4 flex flex-col gap-1.5">
+            <label
+              htmlFor="attachment-name"
+              className="text-xs font-medium text-ink-soft"
+            >
+              {t.attach.name}
+            </label>
+            <input
+              id="attachment-name"
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              maxLength={120}
+              disabled={busy}
+              dir="auto"
+              className="h-9 w-full border-0 border-b border-line bg-transparent text-sm outline-none placeholder:text-ink-faint focus:border-b-2 focus:border-ink"
+            />
+          </div>
+        )}
 
         {target.kind === "block" && (
           <div className="mt-4 flex flex-col gap-1.5">
